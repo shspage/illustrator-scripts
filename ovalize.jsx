@@ -1,17 +1,14 @@
-// Ovalize
-
-// turn every selected path into an oval.
-// you can specify the number of the anchor points.
-
-// JavaScript Script for Adobe Illustrator CSx
-
-// This script provided "as is" without warranty of any kind.
-// Free to use and distribute.
+// Ovalize.jsx
+// adobe Illustrator CSx script
+// for turning every selected path into an oval.
+// You can specify the number of the anchor points.
 
 // 2013-01-16
 
-// Copyright(c) 2013 Hiroyuki Sato (sh)
+// Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
+// This script is distributed under the MIT License.
+// See the LICENSE file for details.
 
 const SCRIPTNAME = "Ovalize";
 const MPI = Math.PI;

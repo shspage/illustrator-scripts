@@ -9,7 +9,7 @@ for editing the contents of the text frames all together.
 
 **Usage:**
 
-1. Select the textframe(s) and run this script.  
+1. Select the text object(s) and run this script.  (Other kind of objects in the selection are ignored.)  
 2. Edit the contents in the dialog. Then hit OK button.  
 ![desc_batchTextEdit](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_batchTextEdit.png)
 

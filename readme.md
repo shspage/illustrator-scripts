@@ -21,6 +21,16 @@ for editing the contents of the text frames all together.
 
   - The order of the texts in the dialog depends on the rectangle area surrounding each top-left corner of the selected textframes.  If the width of the area is greater than the height of it, the order is from left to right. Otherwise from top to bottom.
 
+grass.jsx
+======================
+for growing grasses on the selected paths.
+See the description image for the optional values.  
+![desc_grass](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_grass.png)
+
+**Notice:**
+
+Smaller width value causes longer calculation time.
+
 ovalize.jsx
 ======================
 for turning every selected path into an oval which fits the width and the height of the path.  

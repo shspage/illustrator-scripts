@@ -43,7 +43,7 @@ function main(){
             alert("The value for the width is invalid");
             ok = false;
         } else {
-            createGrass(win, paths, ets);
+            createGrass(paths, ets);
         }
         return ok;
     }));
@@ -58,7 +58,10 @@ var EditTextWithLabel = function(win, label, defaultvalue){
     this.et.active = true;
 }
 EditTextWithLabel.prototype = {
-    getValue : function(){ return parseFloat(this.et.text); }
+    getValue : function(){
+        var v = parseFloat(this.et.text);
+        return isNaN(v) ? 0 : v;
+    }
 }
 // -----------------------------------------------
 function addOkCancelButtons(win, func){
@@ -70,7 +73,7 @@ function addOkCancelButtons(win, func){
     };
 }
 // -----------------------------------------------
-function createGrass(win, paths, ets){
+function createGrass(paths, ets){
     const HPI = Math.PI / 2;
     const XPI = Math.PI * 1.5; // rotate range of the heads
 
@@ -175,11 +178,9 @@ Point.prototype = {
         return new Point().set( this.x * m, this.y * m );
     },
     rotate : function(rad){
-        var x1 = this.x;
-        var y1 = this.y;
         var s = Math.sin(rad);
         var c = Math.cos(rad);
-        return new Point().set( x1 * c - y1 * s, x1 * s + y1 * c );
+        return new Point().set( this.x * c - this.y * s, this.x * s + this.y * c );
     },
     getAngle : function(){
         return Math.atan2( this.y, this.x ); // radian

@@ -170,9 +170,7 @@ function extractTextFramesAsVTextFrameItem(s, r){
 		if( s[i].typename == "TextFrame" ){
 			r.push( new vTextFrameItem(s[i]) );
 		} else if( s[i].typename == "GroupItem" ){
-			for( var j=0; j < s[i].pageItems.length; j++ ){
-				extractTextFrames(s[i].pageItems[j], r);
-			}
+			extractTextFramesAsVTextFrameItem(s[i].pageItems, r);
 		}
 	}
 }

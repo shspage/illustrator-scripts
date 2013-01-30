@@ -3,19 +3,20 @@
 // for turning every selected path into an oval.
 // You can specify the number of the anchor points.
 
-// 2013-01-16
+// test env: Adobe Illustrator CS3, CS6 (Windows)
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
+// Wed, 30 Jan 2013 20:07:35 +0900
+
 const SCRIPTNAME = "Ovalize";
 const MPI = Math.PI;
 const HPI = MPI / 2;
 const WPI = MPI * 2;
 
-main();
 function main(){
   // setting ----------------------------
   
@@ -102,31 +103,29 @@ function drawCircle( path, number_of_anchors ){
 }
 
 // ------------------------------------------------
-function Point(x, y){
+var Point = function(x, y){
   this.x = x;
   this.y = y;
-
-  this.set = function( x, y ){
+}
+Point.prototype = {
+  set : function( x, y ){
     this.x = x;
     this.y = y;
     return this;
-  };
-
-  this.add = function( a, b ){
+  },
+  add : function( a, b ){
     this.x += a;
     this.y += b;
     return this;
-  };
-
-  this.mul = function( a, b ){
+  },
+  mul : function( a, b ){
     this.x *= a;
     this.y *= b;
     return this;
-  };
-
-  this.toArray = function(){
+  },
+  toArray : function(){
     return [this.x, this.y];
-  };
+  }
 }
 
 // ------------------------------------------------
@@ -205,3 +204,4 @@ function extractPaths(items, pp_length_limit, paths){
     }
   }
 }
+main();

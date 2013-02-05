@@ -29,6 +29,8 @@ converts curved lines into broken lines.
 (This script doesn't draw the tiny circles like above image. I added them for the description.)
 
 Basically, whether it adds a point on a curve or not is determined by the distance from a candidate point to the line between the anchor points. ( **fig.a** )  
+The option **"max_height"** specifies this distance.
+
 ![desc_brokencurve_a](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_brokencurve_a.png)  
 
 This scripts includes two methods for this.  

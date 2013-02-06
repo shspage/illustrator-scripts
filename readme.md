@@ -37,7 +37,8 @@ This scripts includes two methods for this.
 First is "tangent". In this method, the candidate point is set as the tangent point of the line parallel to the line between the anchor points.  
 Second is "mid_t". The candidate point is set by parameter of bezier curve t=0.5. It's simple, but the result is a bit rough.
 
-The red point in **fig.b** is by "tangent", and blue one is by "mid_t".
+The red point in **fig.b** is by "tangent", and blue one is by "mid_t".  
+The default setting is "tangent".
 
 grass.jsx
 ======================

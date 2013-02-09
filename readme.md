@@ -24,7 +24,7 @@ for editing the contents of the text frames all together.
 dupAlongThePath.jsx
 ======================
 duplicates the foreground selected object on the rest of selected paths with specified interval.
-Optionally you can apply random scaling to each of the duplicated object.
+Optionally you can apply random scaling to each of the duplicated object.  
 ![desc_dupalongthepath](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_dupalongthepath.png)
 
 **Notice:**

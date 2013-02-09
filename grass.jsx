@@ -94,7 +94,7 @@ function createGrass(paths, ets){
             if( path.pathPoints.length < 2 ) continue;
             
             // add anchor points on the path
-            var pnts = flatten( path, width );
+            var pnts = brokenCurve( path, width );
             
             var height = height_orig;
             var hrate   = hrate_orig;
@@ -281,14 +281,14 @@ Curve.prototype = {
     getPointWithLength : function(len){
         return this.bezier( this.getTforLength(len) );
     },
-    getFlattenPoints : function( d ){
+    getNearlyEquallySpacedPoints : function( d ){
         if( !this.params ) this.setParams();
         if( !this.length ) this.length = this.getLength(1);
         
         var divnum = parseInt(this.length / d);
 
-        // adjust divmun to be odd for the purpose of this script
-        if( divnum % 2 == 0 ){
+        // adjust divmun to be even for the purpose of this script
+        if( divnum % 2 == 1 ){
             if(this.length % d > d / 2){
                 divnum += 1;
             } else {
@@ -321,7 +321,7 @@ function parseIdx(p, n){ // PathPoints, number for index
   }
 }
 // -----------------------------------------------
-function flatten( path, d ){ // path:PathItem, d:desired length between anchors
+function brokenCurve( path, d ){ // path:PathItem, d:desired length between anchors
     var p = path.pathPoints;
     var ancs = []; // anchor point
     var pnts = []; // Point
@@ -332,8 +332,12 @@ function flatten( path, d ){ // path:PathItem, d:desired length between anchors
 
         var cv = new Curve(path, i, next_idx);
 
-        var tmp_pnts = cv.getFlattenPoints(d);
-        if( ! (! path.closed && i == p.length-1)) tmp_pnts.pop();
+        var tmp_pnts = cv.getNearlyEquallySpacedPoints(d);
+        if( path.closed ){
+            tmp_pnts.pop();
+        } else if( next_idx != p.length-1 ){
+            tmp_pnts.pop();
+        }
 
         for(var j=0; j < tmp_pnts.length; j++){
             pnts.push( tmp_pnts[j] );

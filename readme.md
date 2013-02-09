@@ -21,24 +21,15 @@ for editing the contents of the text frames all together.
 
   - The order of the texts in the dialog depends on the rectangle area surrounding each top-left corner of the selected textframes.  If the width of the area is greater than the height of it, the order is from left to right. Otherwise from top to bottom.
 
-brokenCurve.jsx
+dupAlongThePath.jsx
 ======================
-converts curved lines into broken lines.
+duplicates the foreground selected object on the rest of selected paths with specified interval.
+Optionally you can apply random scaling to each of the duplicated object.
+![desc_dupalongthepath](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_dupalongthepath.png)
 
-![desc_brokencurve](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_brokencurve.png)  
-(This script doesn't draw the tiny circles like above image. I added them for the description.)
+**Notice:**
 
-Basically, whether it adds a point on a curve or not is determined by the distance from a candidate point to the line between the anchor points. ( **fig.a** )  
-The option **"max_height"** specifies this distance.
-
-![desc_brokencurve_a](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_brokencurve_a.png)  
-
-This scripts includes two methods for this.  
-First is "tangent". In this method, the candidate point is set as the tangent point of the line parallel to the line between the anchor points.  
-Second is "mid_t". The candidate point is set by parameter of bezier curve t=0.5. It's simple, but the result is a bit rough.
-
-The red point in **fig.b** is by "tangent", and blue one is by "mid_t".  
-The default setting is "tangent".
+Smaller interval value causes longer calculation time.
 
 grass.jsx
 ======================

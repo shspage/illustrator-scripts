@@ -1,3 +1,5 @@
+﻿#target Illustrator
+
 // Ovalize.jsx
 // adobe Illustrator CSx script
 // for turning every selected path into an oval.
@@ -12,10 +14,11 @@
 
 // Wed, 30 Jan 2013 20:07:35 +0900
 
-const SCRIPTNAME = "Ovalize";
-const MPI = Math.PI;
-const HPI = MPI / 2;
-const WPI = MPI * 2;
+// “const” causes problems in ExtendScript Toolkit after the first run!
+/*const*/ var SCRIPTNAME = "Ovalize";
+/*const*/ var MPI = Math.PI;
+/*const*/ var HPI = MPI / 2;
+/*const*/ var WPI = MPI * 2;
 
 function main(){
   // setting ----------------------------

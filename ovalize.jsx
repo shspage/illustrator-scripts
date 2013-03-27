@@ -59,8 +59,15 @@ function main(){
 
 // ------------------------------------------------
 function drawCircle( path, number_of_anchors ){
-  var original_width = path.width - path.strokeWidth;
-  var original_height = path.height - path.strokeWidth;
+  var original_width = path.width;
+  var original_height = path.height;
+  /*
+  // This is wrong. The resulting path has it’s stroke still applied and would shrink!
+  if (path.strokeColor.typename != "NoColor") {
+    original_width -= path.strokeWidth;
+    original_height -= path.strokeWidth;
+  }
+  */
   var center = getCenterPoint(path);
 
   var diameter = Math.max( original_width, original_height );

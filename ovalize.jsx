@@ -25,6 +25,7 @@ function main(){
   
   var number_of_anchors = 4; // (default value for prompt)
   var show_prompt = true; // use default "number_of_anchors" if false
+  var ovalize = true; // (default value)
   
   //-------------------------------------
   
@@ -53,12 +54,12 @@ function main(){
   }
 
   for( var i = 0; i < paths.length; i++ ){
-    drawCircle( paths[i], number_of_anchors );
+    drawCircle( paths[i], number_of_anchors, ovalize );
   }
 }
 
 // ------------------------------------------------
-function drawCircle( path, number_of_anchors ){
+function drawCircle( path, number_of_anchors, ovalize ){
   var original_width = path.width;
   var original_height = path.height;
   /*
@@ -108,7 +109,9 @@ function drawCircle( path, number_of_anchors ){
 
   applyVpps( path, pps, true );
 
-  path.resize( original_width * 100 / diameter, original_height * 100 / diameter);
+  if ( ovalize ) {
+    path.resize( original_width * 100 / diameter, original_height * 100 / diameter);
+  }
   path.translate( center.x, center.y );
 }
 

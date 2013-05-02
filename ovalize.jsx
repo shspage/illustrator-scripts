@@ -1,3 +1,5 @@
+﻿#target Illustrator
+
 // Ovalize.jsx
 // adobe Illustrator CSx script
 // for turning every selected path into an oval.
@@ -12,16 +14,18 @@
 
 // Wed, 30 Jan 2013 20:07:35 +0900
 
-const SCRIPTNAME = "Ovalize";
-const MPI = Math.PI;
-const HPI = MPI / 2;
-const WPI = MPI * 2;
+// “const” causes problems in ExtendScript Toolkit after the first run!
+/*const*/ var SCRIPTNAME = "Ovalize";
+/*const*/ var MPI = Math.PI;
+/*const*/ var HPI = MPI / 2;
+/*const*/ var WPI = MPI * 2;
 
 function main(){
   // setting ----------------------------
   
   var number_of_anchors = 4; // (default value for prompt)
   var show_prompt = true; // use default "number_of_anchors" if false
+  var ovalize = true; // (default value)
   
   //-------------------------------------
   
@@ -50,14 +54,21 @@ function main(){
   }
 
   for( var i = 0; i < paths.length; i++ ){
-    drawCircle( paths[i], number_of_anchors );
+    drawCircle( paths[i], number_of_anchors, ovalize );
   }
 }
 
 // ------------------------------------------------
-function drawCircle( path, number_of_anchors ){
-  var original_width = path.width - path.strokeWidth;
-  var original_height = path.height - path.strokeWidth;
+function drawCircle( path, number_of_anchors, ovalize ){
+  var original_width = path.width;
+  var original_height = path.height;
+  /*
+  // This is wrong. The resulting path has it’s stroke still applied and would shrink!
+  if (path.strokeColor.typename != "NoColor") {
+    original_width -= path.strokeWidth;
+    original_height -= path.strokeWidth;
+  }
+  */
   var center = getCenterPoint(path);
 
   var diameter = Math.max( original_width, original_height );
@@ -98,7 +109,9 @@ function drawCircle( path, number_of_anchors ){
 
   applyVpps( path, pps, true );
 
-  path.resize( original_width * 100 / diameter, original_height * 100 / diameter);
+  if ( ovalize ) {
+    path.resize( original_width * 100 / diameter, original_height * 100 / diameter);
+  }
   path.translate( center.x, center.y );
 }
 

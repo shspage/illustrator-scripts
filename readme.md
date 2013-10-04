@@ -41,6 +41,17 @@ See the description image for the optional values.
 
 Smaller width value causes longer calculation time.
 
+inscribedCircle.jsx
+======================
+This script tries drawing an inscribed circle for each selected path.  
+Usage: select paths and run this script.  
+![desc_inscribedCircle](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_inscribedCircle.png)
+
+**Notice:**
+
+This one simply uses an intersection point of two bisectors of angles to determine the center of the circle. 
+It's not always an inscribed circle for the shape.
+
 ovalize.jsx
 ======================
 for turning every selected path into an oval which fits the width and the height of the path.  

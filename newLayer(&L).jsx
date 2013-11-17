@@ -27,7 +27,6 @@ function main(){
     if(documents.length < 1) return;
 
     var alay = activeDocument.activeLayer;
-    var acolor = alay.color;
 
     // create new color according to the number of layers
     var color = new RGBColor();

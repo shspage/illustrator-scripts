@@ -19,8 +19,9 @@ function main(){
     var alay = activeDocument.activeLayer;
 
     // add new layer
+    var color = getNewLayerColor(alay);
     var lay = alay.parent.layers.add();
-    lay.color = getNewLayerColor(alay);
+    lay.color = color;
     lay.move(alay, ElementPlacement.PLACEBEFORE);
 
     // dummy operation to select new layer

@@ -41,6 +41,14 @@ See the description image for the optional values.
 
 Smaller width value causes longer calculation time.
 
+handleGlue.jsx
+======================
+moves the selected end point of the foreground path to the inner handle's nearest tangent point on the other selected paths.  
+If the nearest point is on the straight segment, the handle is rotated to the segment's angle.  
+![desc_handleglue](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_handleglue.png)
+
+In the case of the above figure, select "a", "A" and "B" and run this script to glue the both ends of "a" to the ovals. Then select "b", "A" and "B" and run this again to glue "b". The result is the right one.
+
 inscribedCircle.jsx
 ======================
 This script tries drawing an inscribed circle for each selected path.  

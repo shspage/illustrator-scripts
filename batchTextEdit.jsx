@@ -50,7 +50,7 @@ function main(){
 	var tfs = []; // textframes
 	extractTextFramesAsVTextFrameItem( app.activeDocument.selection, tfs );
 	if( tfs.length < 1 ){
-		aleft( "Please select textframes" );
+		alert( "Please select textframes" );
 		return;
 	}
 

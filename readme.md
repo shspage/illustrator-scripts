@@ -48,7 +48,7 @@ moves the selected end points of the foreground open path to the nearest point o
 
 In the case of the above figure, select "a", "A" and "B" and run this script to glue the both ends of "a" to the ovals. Then select "b", "A" and "B" and run this again to glue "b". The result is the right one.  
 
-You can set 2 optional values by editing the script.  (No UI?  Yes, for now.  This is a script written for creative cloud extension.)
+You can set 2 optional values by editing the script.  (No UI for now.  This is a script written for creative cloud extension.)
 
 1. mode  
 

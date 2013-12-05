@@ -23,7 +23,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Wed, 04 Dec 2013 21:47:06 +0900
+// Thu, 05 Dec 2013 20:24:36 +0900
 
 // ----------------------------------------------
 // for parameter details, see the description of the script.
@@ -270,7 +270,7 @@ function handleGlue1(p, paths, right_direction, conf){
         }
         
         if(np_spec.errmsg != ""){
-            errmsg = point_desc + "ÅF" + np_spec.errmsg;
+            errmsg = point_desc + "?F" + np_spec.errmsg;
             
         } else if( np_spec.d < 0){
             errmsg = point_desc + msg_fail_to_find;
@@ -315,7 +315,6 @@ function roughMeasureing(p, paths, conf){
       t : null,     // bezier parameter t
       idx : null,   // pathPoint's index
       b : null,     // Bezier object
-      pidx : null,  // previous index
       nidx : null,  // next index
       alt : { d : -1, t : null }  // alternative
     };
@@ -339,7 +338,6 @@ function roughMeasureing(p, paths, conf){
         var found = false;
         
         for(var pp_idx = 0; pp_idx < pp.length; pp_idx++){
-            var pidx = parseIdx(pp, pp_idx - 1);
             var nidx = parseIdx(pp, pp_idx + 1);
             if(nidx < 0) break;
 
@@ -361,7 +359,6 @@ function roughMeasureing(p, paths, conf){
                     mp.t = result.t;
                     mp.idx = pp_idx;
                     mp.b = b;
-                    mp.pidx = pidx;
                     mp.nidx = nidx;
                 }
             }
@@ -369,11 +366,17 @@ function roughMeasureing(p, paths, conf){
 
         if( found ){
             if( mp.t < conf.TOLERANCE && mp.pidx > -1 ){
-                mp.alt.b = new Bezier(pp, mp.pidx, mp.idx );
-                mp.alt.t = 1 - conf.INITIAL_T_STEP;
+                var pidx = parseIdx(pp, mp.idx - 1);
+                if(pidx > -1){
+                    mp.alt.b = new Bezier(pp, pidx, mp.idx );
+                    mp.alt.t = 1 - conf.INITIAL_T_STEP;
+                }
             } else if( mp.t > 1 - conf.TOLERANCE ){
-                mp.alt.b = new Bezier(pp, mp.idx, mp.nidx);
-                mp.alt.t = conf.INITIAL_T_STEP;
+                var next_nidx = parseIdx(pp, mp.nidx + 1);
+                if(next_nidx > -1){
+                    mp.alt.b = new Bezier(pp, mp.nidx, next_nidx);
+                    mp.alt.t = conf.INITIAL_T_STEP;
+                }
             } else {
                 mp.alt.t = null;
             }
@@ -679,4 +682,3 @@ function performUndo(){
     // for extension use
     app.undo();
 }
-

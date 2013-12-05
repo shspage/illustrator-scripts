@@ -6,10 +6,10 @@
 // The handle is rotated to the tangent's angle at the point.
 
 // mode "angle" : moves the selected end point of the foreground
-// open path(s) to its inner handle's nearest tangent point on the
-// other selected paths.
-// If the nearest point is on the straight segment, the handle is
-// rotated to the segment's angle.
+// open path(s) to its inner handle's nearest tangent point on
+// the other selected paths.  If the segment is straight, (and
+// the handle of selected point is parallel to it), selected
+// end point is moved to its nearest point on it.
 
 // multi : If false, it moves only the foreground open path.
 // If true, moves all the open path in the selection.

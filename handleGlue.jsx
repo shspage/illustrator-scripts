@@ -16,6 +16,9 @@
 // If all the selected paths are open path, the last
 // (most background) path is treated as "the other path".
 
+// add_anchor : If true, it adds an anchor point at
+// the point on the path that the selected anchor moved to.
+
 // test env: Adobe Illustrator CC (Win / Mac)
 
 // Copyright(c) 2013 Hiroyuki Sato
@@ -23,24 +26,27 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Thu, 05 Dec 2013 20:24:36 +0900
+// Thu, 05 Dec 2013 23:05:00 +0900
 
 // ----------------------------------------------
 // for parameter details, see the description of the script.
 // param mode : 1 = "nearest", not 1 = "angle"
 // param multi : true / false
-function handleGlue( mode, multi){
-    // various constants
+// param add_anchor : true / false
+function handleGlue( mode, multi, add_anchor){
+    if( mode == undefined ) mode = 1;
+    if( multi == undefined ) multi = false;
+    if( add_anchor == undefined ) add_anchor = false;
+    
+    // various values
     var conf = {
         TOLERANCE : 0.00001,
         INITIAL_T_STEP : 0.05,
         REPEAT_LIMIT : 100,
-        MAX_ERROR_MESSAGES : 5
+        MAX_ERROR_MESSAGES : 5,
+        add_anchor : add_anchor
         };
 
-    if( mode == undefined ) mode = 1;
-    if( multi == undefined ) multi = false;
-    
     var handleGlueFunc = mode == 1 ? handleGlue1 : handleGlue2;
   
     var paths = [];
@@ -119,14 +125,15 @@ function handleGlue2(p, paths, right_direction, conf){
     
     var s = slope(p.anchor, handle);
     
-    var sol = { d_min:-1, d_min_pnt:null, vector:null };
+    var sol = { d_min:-1, d_min_pnt:null, b:null, t:null };
     var tangent_pnt;
     
-    var compDistance = function(d, tangent_pnt, vector, sol){
+    var compDistance = function(d, tangent_pnt, sol, b, t){
         if(sol.d_min < 0 || d < sol.d_min){
             sol.d_min = d;
             sol.d_min_pnt = tangent_pnt;
-            sol.vector = vector;
+            sol.b = b;
+            sol.t = t;
         }
     };
     
@@ -147,10 +154,14 @@ function handleGlue2(p, paths, right_direction, conf){
             if( arrEq(b.a0, b.a1) ) continue;
                 
             if( b.isStraight() ){
-                // if the segment is straight, the target point is set to the nearest point.
-                // in this case, the handle is rotated to the angle of the segment.
-                var result = nerestPointOnSegment(p.anchor, b.a0, b.a1, conf);
-                compDistance( result.d, result.np, result.op, sol);
+                // if the segment is straight, and handle to move is parallel to it,
+                // the target point is set to the nearest point.
+                if(!arrEq(p.rightDirection, p.leftDirection)
+                   && isParallel(b.a0, b.a1, p.rightDirection, p.leftDirection, conf)){
+                    
+                    var result = nerestPointOnSegment(p.anchor, b.a0, b.a1, conf);
+                    compDistance( result.d, result.np, sol, b, null);
+                }
                 
             } else {
                 // if the segment is not straignt,
@@ -170,7 +181,7 @@ function handleGlue2(p, paths, right_direction, conf){
                     }
                     tangent_pnt = b.pnt( ts[ t_idx ] );
                     
-                    compDistance(dist(tangent_pnt, p.anchor), tangent_pnt, null, sol);
+                    compDistance(dist(tangent_pnt, p.anchor), tangent_pnt, sol, b, ts[ t_idx ]);
                 }
             }
         }
@@ -179,26 +190,12 @@ function handleGlue2(p, paths, right_direction, conf){
     if(sol.d_min > 0){
         movePathPointTo(p, sol.d_min_pnt);
         
-        if( sol.vector != null ){
-            // rotates the handle if the segment is a straight line.
-            handle = right_direction ? p.rightDirection : p.leftDirection;
-            var angle = getRad( p.anchor, sol.vector );
-            
-            if( dot(handle, sol.vector, p.anchor) < conf.TOLERANCE ){
-                angle += Math.PI;
+        if(conf.add_anchor){
+            if(sol.t == null){
+                addAnchorNextToIdx(sol.b.pp, sol.b.idx1, sol.d_min_pnt);
+            } else if(sol.t > 0 && sol.t < 1){
+                addAnchorAtT(sol.b.pp, sol.b.idx1, sol.b.idx2, sol.t, sol.b, sol.d_min_pnt);
             }
-            
-            if( right_direction ){
-                p.rightDirection = rotPntToAngle( p.rightDirection, p.anchor, angle );
-            } else {
-                p.leftDirection = rotPntToAngle( p.leftDirection, p.anchor, angle );
-            }
-        }
-        
-        if( right_direction ){
-            p.leftDirection  = p.anchor;
-        } else {
-            p.rightDirection = p.anchor;
         }
     } else if (sol.d_min == 0){
         errmsg = point_desc + " : ignored because it is on line.";
@@ -212,22 +209,19 @@ function handleGlue2(p, paths, right_direction, conf){
 // returns an information about the nearest point on the (straight) segment a-b
 // param p    : point
 // param a, b : both ends of the segment
-// return { d : distance, np : nearest point on segment a-b, op : other point on a-b }
+// return { d : distance, np : nearest point on segment a-b }
 function nerestPointOnSegment(p, a, b, conf){
     var result = {
         d : null,  // distance
         np : null,  // nearest point
-        op : null  // other point
         };
     
     var dp = dot(p, a, b);
     
     if(  dp < conf.TOLERANCE ){
         result.np = b;
-        result.op = a;
     } else if( dot(p, b, a) < conf.TOLERANCE){
         result.np = a;
-        result.op = b;
     } else {
         var cp = Math.abs( cross(p, a, b) );
         
@@ -238,7 +232,6 @@ function nerestPointOnSegment(p, a, b, conf){
             result.np = [k * (a[0] - b[0]) + b[0],
                   k * (a[1] - b[1]) + b[1]];
         }
-        result.op = a;
     }
 
     result.d = dist(p, result.np);
@@ -280,7 +273,13 @@ function handleGlue1(p, paths, right_direction, conf){
             var d_min_pnt = np_spec.b.pnt( np_spec.t );
 
             movePathPointTo(p, d_min_pnt);
-
+            
+            if(conf.add_anchor){
+                if(np_spec.t > 0 && np_spec.t < 1){
+                    addAnchorAtT(np_spec.b.pp, np_spec.b.idx1, np_spec.b.idx2, np_spec.t, np_spec.b, d_min_pnt);
+                }
+            }
+            
             // rotate handle
             var handle = right_direction ? p.rightDirection : p.leftDirection;
             var angle = np_spec.b.getTangentAngle(np_spec.t);
@@ -314,8 +313,8 @@ function roughMeasureing(p, paths, conf){
       d : -1,       // distance
       t : null,     // bezier parameter t
       idx : null,   // pathPoint's index
-      b : null,     // Bezier object
       nidx : null,  // next index
+      b : null,     // Bezier object
       alt : { d : -1, t : null }  // alternative
     };
     
@@ -358,8 +357,8 @@ function roughMeasureing(p, paths, conf){
                     mp.d = result.d;
                     mp.t = result.t;
                     mp.idx = pp_idx;
-                    mp.b = b;
                     mp.nidx = nidx;
+                    mp.b = b;
                 }
             }
         }
@@ -464,6 +463,12 @@ function pSub(p1, p2){
     return [p1[0] - p2[0], p1[1] - p2[1]];
 }
 // ------------------------------------------------
+function isParallel(p1, p2, q1, q2, conf){
+    var p = pSub(p1, p2);
+    var q = pSub(q1, q2);
+    return p[0] * q[1] - p[1] * q[0] < conf.TOLERANCE;
+}
+// ------------------------------------------------
 // dot product of (o->p1) and (o->p2)
 function dot(p1, p2, o){
     var po1 = pSub(p1, o);
@@ -475,7 +480,7 @@ function dot(p1, p2, o){
 function cross(p1, p2, o){
     var po1 = pSub(p1, o);
     var po2 = pSub(p2, o);
-    return po1[0] * po2[1] + po1[1] * po2[0];
+    return po1[0] * po2[1] - po1[1] * po2[0];
 }
 // ------------------------------------------------
 // return the squared distance between p1=[x,y] and p2=[x,y]
@@ -583,7 +588,9 @@ function extractPaths(s, pp_length_limit, paths){
 
 // Bezier ================================
 var Bezier = function(pp, idx1, idx2){
-  this.p  = pp;
+  this.pp  = pp;
+  this.idx1 = idx1;
+  this.idx2 = idx2;
   this.p0 = pp[idx1];
   this.p1 = pp[idx2];
   
@@ -675,6 +682,150 @@ function tBySlope(b, k, torelance){
         //else return idx==0 ? Math.min(t[0],t[1]) : Math.max(t[0],t[1]);
     }
     return t0_invalid ? [-1] : [t[0]];
+}
+
+
+// Point  ================================
+var Point = function(){
+    this.x = 0;
+    this.y = 0;
+}
+Point.prototype = {
+  set : function(x, y){
+      this.x = x;
+      this.y = y;
+      return this;
+  },
+  setr : function(r){
+      this.x = r[0];
+      this.y = r[1];
+      return this;
+  },
+  clone : function(){
+      return new Point().set(this.x, this.y);
+  },
+  addp : function(p){
+      var c = this.clone();
+      c.x += p.x;
+      c.y += p.y;
+      return c;
+  },
+  addr : function(r){
+      var c = this.clone();
+      c.x += r[0];
+      c.y += r[1];
+      return c;
+  },
+  subp : function(p){
+      var c = this.clone();
+      c.x -= p.x;
+      c.y -= p.y;
+      return c;
+  },
+  subr : function(r){
+      var c = this.clone();
+      c.x -= r[0];
+      c.y -= r[1];
+      return c;
+  },
+  mul : function(m){
+      var c = this.clone();
+      c.x *= m;
+      c.y *= m;
+      return c;
+  },
+  toArray : function(){
+      return [this.x, this.y];
+  }
+}
+// vPathPoint ============================
+// virtual PathPoint
+var vPathPoint = function(pp){
+    this.a = pp.anchor;
+    this.rd = pp.rightDirection;
+    this.ld = pp.leftDirection;
+    this.ptype = pp.pointType;
+    this.selected = pp.selected;
+}
+vPathPoint.prototype = {
+  apply : function(pp){
+      pp.anchor = this.a;
+      pp.rightDirection = this.rd;
+      pp.leftDirection = this.ld;
+      pp.pointType = this.ptype;
+      pp.selected = this.selected;
+  }
+}
+// --------------------------------------
+function addAnchorNextToIdx(pp, idx, pnt){
+    var vps = [];
+    var i, vp;
+    for(i = 0; i < pp.length; i++){
+        vp = new vPathPoint(pp[i]);
+        vps.push( vp );
+        
+        if( i == idx ){
+            vp = new vPathPoint(pp[i]);
+            vp.a = pnt;
+            vp.rd = vp.a;
+            vp.ld = vp.a;
+            vp.ptype = PointType.CORNER;
+            vp.selected = PathPointSelection.ANCHORPOINT
+            vps.push( vp );
+        }
+    }
+
+    pp.add();
+    for(i = 0; i < pp.length; i++){
+        vps[i].apply( pp[i] );
+    }
+}
+// --------------------------------------
+function addAnchorAtT(pp, idx1, idx2, t, b, pnt){
+    if(pnt == undefined){
+        if(b == undefined){
+            b = new Bezier(pp, idx1, idx2);
+        }
+        pnt = b.pnt(t);
+    }
+
+    var anc1 = new Point().setr( pp[idx1].anchor );
+    var rdir = new Point().setr( pp[idx1].rightDirection );
+    var ldir = new Point().setr( pp[idx2].leftDirection );
+    var anc2 = new Point().setr( pp[idx2].anchor );
+
+    var mp = rdir.mul(1 - t).addp( ldir.mul(t) );
+    rdir = rdir.subp(anc1).mul(t).addp(anc1);
+    ldir = ldir.subp(anc2).mul(1 - t).addp(anc2);
+    var p_ldir = rdir.mul(1 - t).addp( mp.mul(t));
+    var p_rdir = ldir.mul(t).addp( mp.mul(1 - t) );
+
+    var vps = [];
+    var i, vp;
+    for(i = 0; i < pp.length; i++){
+        vp = new vPathPoint(pp[i]);
+        if( i == idx1 ){
+            vp.rd = rdir.toArray();
+        } else if( i == idx2 ){
+            vp.ld = ldir.toArray();
+        }
+        vps.push( vp );
+        
+        if( i == idx1 ){
+            vp = new vPathPoint(pp[i]);
+            vp.a = pnt;
+            vp.rd = p_rdir.toArray();
+            vp.ld = p_ldir.toArray();
+            vp.ptype = PointType.SMOOTH;
+            vp.selected = PathPointSelection.ANCHORPOINT
+            vps.push( vp );
+        }
+    }
+
+    pp.add();
+    for(i = 0; i < pp.length; i++){
+        vps[i].apply( pp[i] );
+    }
 }
 handleGlue();
 

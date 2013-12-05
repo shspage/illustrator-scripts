@@ -54,11 +54,15 @@ You can set 2 optional values by editing the script.  (No UI for now.  This is a
 
 mode "nearest" : moves the selected end point of the foreground open path(s) to its anchor point's nearest point on the other selected paths.  The handle is rotated to the tangent's angle at the point.  
 
-mode "angle" : moves the selected end point of the foreground open path(s) to its inner handle's nearest tangent point on the other selected paths.  If the nearest point is on the straight segment, the handle is rotated to the segment's angle.  
+mode "angle" : moves the selected end point of the foreground open path(s) to its inner handle's nearest tangent point on the other selected paths.  If the segment is straight, (and the handle of selected point is parallel to it), selected end point is moved to its nearest point on it.
 
 2. multi  
 
-If false, it moves only the foreground open path.  If true, moves all the open path in the selection.  If all the selected paths are open path, the last (most background) path is treated as "the other path".
+If false, it moves only the foreground open path.  If true, moves all the open path in the selection.  If all the selected paths are open path, the last (most background) path is treated as "the other path".  
+
+3. add_anchor  
+
+If true, it adds an anchor point at the point on the path that the selected anchor moved to.  
 
 ![desc_handleglue2](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_handleglue2a.png)  
 

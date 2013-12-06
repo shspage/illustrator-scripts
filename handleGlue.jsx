@@ -26,7 +26,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Thu, 05 Dec 2013 23:05:00 +0900
+// Sat, 07 Dec 2013 01:18:40 +0900
 
 // ----------------------------------------------
 // for parameter details, see the description of the script.
@@ -364,7 +364,7 @@ function roughMeasureing(p, paths, conf){
         }
 
         if( found ){
-            if( mp.t < conf.TOLERANCE && mp.pidx > -1 ){
+            if( mp.t < conf.TOLERANCE){
                 var pidx = parseIdx(pp, mp.idx - 1);
                 if(pidx > -1){
                     mp.alt.b = new Bezier(pp, pidx, mp.idx );

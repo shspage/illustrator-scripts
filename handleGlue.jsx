@@ -26,7 +26,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Sat, 07 Dec 2013 01:18:40 +0900
+// Sat, 07 Dec 2013 07:56:42 +0900
 
 // ----------------------------------------------
 // for parameter details, see the description of the script.
@@ -92,16 +92,20 @@ function handleGlue( mode, multi, add_anchor){
             errmsgs.push(errmsg);
         }
     };
+
+    var processed = false;
     
     for(i = 0; i < lines.length; i++){
         var p = lines[i].pathPoints;
 
         if(isSelected(p[0])){
+            processed = true;
             errmsg = handleGlueFunc(p[0], shapes, true, conf);
             if(errmsg != "") addErrorMessage();
         }
     
         if(isSelected(p[p.length - 1])){
+            processed = true;
             errmsg = handleGlueFunc(p[p.length - 1], shapes, false, conf);
             if(errmsg != "") addErrorMessage();
         }
@@ -109,6 +113,9 @@ function handleGlue( mode, multi, add_anchor){
     
     if( errmsgs.length ){
         alert( "Report:\n" + errmsgs.join("\n") );
+    } else if(!processed){
+        // Another way of behavior is to check the selected status at first. I don't know which is better.
+        alert( "Report:\nIt seems that both ends are not selected in the target open path(s)." );
     }
 }
 

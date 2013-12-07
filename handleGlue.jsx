@@ -1,5 +1,12 @@
 // handleGlue.jsx
 
+// Function : Moving the selected end points of the foreground
+// open path to the nearest point on the other selected paths,
+// with adjustments of tangency of the handles.
+
+// How To Use : Select paths (anchor points to glue and the
+// segments to glue to) and run this script.
+
 // mode "nearest" : moves the selected end point of the foreground
 // open path(s) to its anchor point's nearest point on the other
 // selected paths.
@@ -26,7 +33,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Sat, 07 Dec 2013 07:56:42 +0900
+// Sat, 07 Dec 2013 19:21:15 +0900
 
 // ----------------------------------------------
 // for parameter details, see the description of the script.
@@ -126,7 +133,7 @@ function handleGlue2(p, paths, right_direction, conf){
     var point_desc = right_direction ? "start point" : "end point";
     
     if(arrEq(p.anchor, handle)){
-        errmsg = point_desc + " : ignored because it doesn't has an inside handle";
+        errmsg = point_desc + " : ignored because it doesn't have an inside handle";
         return errmsg;
     }
     
@@ -197,6 +204,12 @@ function handleGlue2(p, paths, right_direction, conf){
     if(sol.d_min > 0){
         movePathPointTo(p, sol.d_min_pnt);
         
+        if( right_direction ){
+            p.leftDirection = p.anchor;
+        } else {
+            p.rightDirection = p.anchor;
+        }
+
         if(conf.add_anchor){
             if(sol.t == null){
                 addAnchorNextToIdx(sol.b.pp, sol.b.idx1, sol.d_min_pnt);
@@ -434,7 +447,7 @@ function findTForNearestPoint(b, t, p, t_step, conf){
     while(1){
         np_spec.repeat++;
         if(np_spec.repeat > conf.REPEAT_LIMIT){
-            np_spec.errmsg = "failed to compute the nearestpoint.";
+            np_spec.errmsg = "failed to compute the nearest point.";
             break;
         }
         

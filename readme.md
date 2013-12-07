@@ -43,28 +43,38 @@ Smaller width value causes longer calculation time.
 
 handleGlue.jsx
 ======================
-moves the selected end points of the foreground open path to the nearest point on the other selected paths.  
-![desc_handleglue](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_handleglue1.png)
+![desc_handleglue1](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_handleglue1a.png)  
 
-In the case of the above figure, select "a", "A" and "B" and run this script to glue the both ends of "a" to the ovals. Then select "b", "A" and "B" and run this again to glue "b". The result is the right one.  
+Function : Moves the selected end points of the foreground open
+path to the nearest point on the other selected paths. This process
+includes adjustments of tangency of the handles.  
 
-You can set 2 optional values by editing the script.  (No UI for now.  This is a script written for creative cloud extension.)
+How To Use : Select paths (anchor points to move and the segments
+to move them to) and run this script.  
 
-1. mode  
-
-mode "nearest" : moves the selected end point of the foreground open path(s) to its anchor point's nearest point on the other selected paths.  The handle is rotated to the tangent's angle at the point.  
-
-mode "angle" : moves the selected end point of the foreground open path(s) to its inner handle's nearest tangent point on the other selected paths.  If the segment is straight, (and the handle of selected point is parallel to it), selected end point is moved to its nearest point on it.
-
-2. multi  
-
-If false, it moves only the foreground open path.  If true, moves all the open path in the selection.  If all the selected paths are open path, the last (most background) path is treated as "the other path".  
-
-3. add_anchor  
-
-If true, it adds an anchor point at the point on the path that the selected anchor moved to.  
+You can set optional values by editing the script.  (No UI for now.  This is a script written for creative cloud extension.)  
 
 ![desc_handleglue2](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_handleglue2a.png)  
+
+mode "nearest" : moves the selected end points of the foreground
+open path(s) to its anchor point's nearest point on the other
+selected segments.  The handle is rotated to the tangent's angle
+at the point.  
+
+mode "angle" : moves the selected end point of the foreground
+open path(s) to its inner handle's nearest tangent point on
+the other selected paths.  If the segment is straight, (and
+if the handle of selected point is parallel to it), selected
+end point is moved to its nearest point on it.  
+
+"multi" : If true, it moves all the open path in the selection.
+Otherwise, it moves only the foreground open path.  If true and
+all the selected paths are open path, the last (most background)
+path is treated as "the other path".  
+
+"add anchor" : If true, it adds an anchor point at the point
+on the path that the selected anchor moved to.  
+
 
 inscribedCircle.jsx
 ======================

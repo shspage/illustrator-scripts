@@ -1,30 +1,30 @@
 // handleGlue.jsx
 
-// Function : Moving the selected end points of the foreground
-// open path to the nearest point on the other selected paths,
-// with adjustments of tangency of the handles.
+// Function : Moves the selected end points of the foreground open
+// path to the nearest point on the other selected paths. This process
+// includes adjustments of tangency of the handles.
 
-// How To Use : Select paths (anchor points to glue and the
-// segments to glue to) and run this script.
+// How To Use : Select paths (anchor points to move and the segments
+// to move them to) and run this script.
 
-// mode "nearest" : moves the selected end point of the foreground
+// mode "nearest" : moves the selected end points of the foreground
 // open path(s) to its anchor point's nearest point on the other
-// selected paths.
-// The handle is rotated to the tangent's angle at the point.
+// selected segments.  The handle is rotated to the tangent's angle
+// at the point.
 
 // mode "angle" : moves the selected end point of the foreground
 // open path(s) to its inner handle's nearest tangent point on
 // the other selected paths.  If the segment is straight, (and
-// the handle of selected point is parallel to it), selected
+// if the handle of selected point is parallel to it), selected
 // end point is moved to its nearest point on it.
 
-// multi : If false, it moves only the foreground open path.
-// If true, moves all the open path in the selection.
-// If all the selected paths are open path, the last
-// (most background) path is treated as "the other path".
+// "multi" : If true, it moves all the open path in the selection.
+// Otherwise, it moves only the foreground open path.  If true and
+// all the selected paths are open path, the last (most background)
+// path is treated as "the other path".
 
-// add_anchor : If true, it adds an anchor point at
-// the point on the path that the selected anchor moved to.
+// "add anchor" : If true, it adds an anchor point at the point
+// on the path that the selected anchor moved to.
 
 // test env: Adobe Illustrator CC (Win / Mac)
 
@@ -33,7 +33,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Sat, 07 Dec 2013 19:21:15 +0900
+// Sat, 07 Dec 2013 20:02:50 +0900
 
 // ----------------------------------------------
 // for parameter details, see the description of the script.

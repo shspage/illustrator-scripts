@@ -160,8 +160,8 @@ function softgel(s0, s1, conf){
             var pitem = s0.duplicate();
             var p = pitem.pathPoints;
             
-            var i;
-            if(p.length > 4) for(i = p.length-1; i > 3; i--) p[i].remove();
+            while(p.length < 4) p.add();
+            while(p.length > 4) p[p.length - 1].remove();
             
             var copyPathPoint = function(p1, p2){
                 p2.anchor = p1.anchor;
@@ -170,7 +170,7 @@ function softgel(s0, s1, conf){
                 p2.pointType = p1.pointType;
             };
             
-            for(i = 0; i < 4; i++){
+            for(var i = 0; i < 4; i++){
                 copyPathPoint(cp[i], p[i]);
             }
             circle.remove();

@@ -57,8 +57,8 @@ function main(){
         }
     }
     
-	// show a dialog
-	var win = new Window("dialog", "Softgel");
+    // show a dialog
+    var win = new Window("dialog", "Softgel");
     win.orientation = "column";
     win.alignChildren = "fill";
 
@@ -124,29 +124,6 @@ function main(){
     if( conf.errmsg != "") alert( conf.errmsg );
 }
 
-// -----------------------------------------------
-var EditTextWithLabel = function(win, label, defaultvalue){
-    var gr = win.add("group");
-    gr.add("statictext", undefined, label);
-    this.et = gr.add("edittext", undefined, defaultvalue);
-    this.et.characters = 10;
-    this.et.active = true;
-}
-EditTextWithLabel.prototype = {
-    getValue : function(){
-        var v = parseFloat(this.et.text);
-        return isNaN(v) ? 0 : v;
-    }
-}
-// -----------------------------------------------
-function addOkCancelButtons(win, func){
-    var gr = win.add("group");
-    var btn_ok = gr.add("button", undefined, "OK");
-    var btn_cancel = gr.add("button", undefined, "Cancel");
-    btn_ok.onClick = function(){
-        if( func() ) win.close();
-    };
-}
 // ---------------------------------------------
 function softgel(s0, s1, conf){
     var mpi = Math.PI;

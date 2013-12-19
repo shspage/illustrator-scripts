@@ -108,6 +108,17 @@ Draw a circle with the ellipse tool, select it, run this script, input the numbe
 
 Please notice the case 3 of the above image. This is a feature for now.
 
+softgel.jsx
+======================
+When you want to create softgel capsule like shapes, this script may help you.  
+![desc_ovalize](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_softgel.png)
+
+USAGE : Draw circles and select them, then run this script.  Adjust options in the dialog.  then click OK.
+(This script doesn't check whether each path is really a circle.)
+
+Note : Combining the shapes using Pathfinder may results several overlapping anchor points on the path.  if it occurs, it may help to solve it to use my another script "[Merge Overlapped Anchors.js](http://park12.wakwak.com/~shp/lc/et/en_aics_script.html "Scripts for Adobe Illustrator (10 - CC) (JavaScript)")".  This script merges overlapping anchors on the path.
+
+
 ----------------------
 Copyright(c) 2013 Hiroyuki Sato  
 [https://github.com/shspage](https://github.com/shspage)  

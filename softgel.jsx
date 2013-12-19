@@ -1,0 +1,389 @@
+// softgel
+
+// When you want to create softgel capsule like shapes, this script may
+// help you.  
+
+// USAGE : Draw circles and select them, then run this script.  Adjust
+// options in the dialog.  then click OK.
+// (This script doesn't check whether each path is really a circle.)
+
+// Note : Combining the shapes using Pathfinder may results several
+// overlapping anchor points on the path.  if it occurs, it may help to
+// solve it to use my another script "Merge Overlapped Anchors.js
+// (http://park12.wakwak.com/~shp/lc/et/en_aics_script.html)
+// This script merges overlapping anchors on the path.
+
+// test env: Adobe Illustrator CC (Win/Mac), CS3 (Win)
+
+// Copyright(c) 2013 Hiroyuki Sato
+// https://github.com/shspage
+// This script is distributed under the MIT License.
+// See the LICENSE file for details.
+
+// Thu, 19 Dec 2013 21:47:06 +0900
+
+main();
+function main(){
+    var conf = {
+        center_angle : 90,
+        extra_anchor : "auto",
+        errmsg : ""
+      }
+    
+    if (documents.length<1) return;
+    var s = activeDocument.selection;
+    if (!(s instanceof Array) || s.length<1) return;
+    
+    var sp = [];
+    extractPaths(s, 1, sp);
+    if(sp.length < 2) return;
+    activateEditableLayer(sp[0]);
+
+    var preview_paths = [];
+
+    var clearPreviewPaths = function(){
+        if(preview_paths.length) undo();
+        preview_paths = [];
+    }
+    
+    var drawPreview = function(){
+        // draws for each paths
+        var shape, j;
+        for(var i = sp.length - 1; i >= 1; i--){
+            for(j = i - 1; j >= 0; j--){
+                shape = softgel(sp[i], sp[j], conf);
+                if(shape != null) preview_paths.push( shape );
+            }
+        }
+    }
+    
+	// show a dialog
+	var win = new Window("dialog", "Softgel");
+    win.orientation = "column";
+    win.alignChildren = "fill";
+
+    win.anglePanel = win.add("panel", [15, 15, 240, 61], "center angle");
+    win.anglePanel.orientation = "row";
+    win.anglePanel.angleSlider = win.anglePanel.add("slider", [15, 10, 165, 27], 90, 1, 180);
+    win.anglePanel.valueText = win.anglePanel.add("statictext", [175, 12, 210, 25], 90);
+    
+    win.radioPanel = win.add("panel", [15, 76, 215, 122], "extra anchor");
+    win.radioPanel.orientation = "row";
+    win.radioPanel.autoRb = win.radioPanel.add("radiobutton", undefined, "auto");
+    win.radioPanel.alwaysRb = win.radioPanel.add("radiobutton", undefined, "always");
+    win.radioPanel.neverRb = win.radioPanel.add("radiobutton", undefined, "never");
+    win.radioPanel.autoRb.value = true;
+
+    win.chkGroup = win.add("group");
+    win.chkGroup.previewChk = win.chkGroup.add("checkbox", undefined, "preview");
+    
+    win.btnGroup = win.add("group");
+    win.btnGroup.okBtn = win.btnGroup.add("button", undefined, "OK");
+    win.btnGroup.cancelBtn = win.btnGroup.add("button", undefined, "Cancel");
+
+    var getValues = function(){
+        conf.center_angle = win.anglePanel.valueText.text;
+        
+        if(win.radioPanel.alwaysRb.value){
+            conf.extra_anchor = "always";
+        } else if(win.radioPanel.neverRb.value){
+            conf.extra_anchor = "never";
+        } else {
+            conf.extra_anchor = "auto";
+        }
+    }
+    
+    win.anglePanel.angleSlider.onChanging = function(){
+        win.anglePanel.valueText.text = Math.round(this.value);
+    }
+    
+    win.anglePanel.angleSlider.onChange = function(){
+        win.anglePanel.valueText.text = Math.round(this.value);
+        if(win.chkGroup.previewChk.value){
+            getValues();
+            clearPreviewPaths();
+            drawPreview();
+            redraw();
+        }
+    }
+    
+    win.btnGroup.okBtn.onClick = function(){
+        getValues();
+        clearPreviewPaths();
+        drawPreview();
+        win.close();
+    }
+    
+    win.btnGroup.cancelBtn.onClick = function(){
+        clearPreviewPaths();
+        win.close();
+    }
+    win.show();
+
+    activeDocument.selection = sp.concat( preview_paths );
+    if( conf.errmsg != "") alert( conf.errmsg );
+}
+
+// -----------------------------------------------
+var EditTextWithLabel = function(win, label, defaultvalue){
+    var gr = win.add("group");
+    gr.add("statictext", undefined, label);
+    this.et = gr.add("edittext", undefined, defaultvalue);
+    this.et.characters = 10;
+    this.et.active = true;
+}
+EditTextWithLabel.prototype = {
+    getValue : function(){
+        var v = parseFloat(this.et.text);
+        return isNaN(v) ? 0 : v;
+    }
+}
+// -----------------------------------------------
+function addOkCancelButtons(win, func){
+    var gr = win.add("group");
+    var btn_ok = gr.add("button", undefined, "OK");
+    var btn_cancel = gr.add("button", undefined, "Cancel");
+    btn_ok.onClick = function(){
+        if( func() ) win.close();
+    };
+}
+// ---------------------------------------------
+function softgel(s0, s1, conf){
+    var mpi = Math.PI;
+    var hpi = mpi/2;
+    
+    var arr = getGBCenterWidth(s0);
+    var o1 = arr[0];
+    var r1 = arr[1] / 2;
+    
+    arr = getGBCenterWidth(s1);
+    var o2 = arr[0];
+    var r2 = arr[1] / 2;
+    
+    if(r1 == 0 || r2 == 0) return;
+    
+    var d = dist(o1, o2);
+    if(d <= Math.abs(r1 - r2)) return;
+
+    // if center_angle is 180, simply draw a circle.
+    if(conf.center_angle == 180){
+        return (function(){
+            var d1 = (d + r2 - r1) / d;
+            var d2 = (d + r1 - r2) / d;
+            var center = [(o1[0] * d2 + o2[0] * d1) / 2,
+                          (o1[1] * d2 + o2[1] * d1) / 2];
+            var radius = (d + r1 + r2) / 2;
+            var circle = activeDocument.activeLayer.pathItems.ellipse(
+                center[1] + radius,
+                center[0] - radius,
+                radius * 2, radius * 2
+                );
+            var cp = circle.pathPoints;
+            
+            var pitem = s0.duplicate();
+            var p = pitem.pathPoints;
+            
+            var i;
+            if(p.length > 4) for(i = p.length-1; i > 3; i--) p[i].remove();
+            
+            var copyPathPoint = function(p1, p2){
+                p2.anchor = p1.anchor;
+                p2.rightDirection = p1.rightDirection;
+                p2.leftDirection = p1.leftDirection;
+                p2.pointType = p1.pointType;
+            };
+            
+            for(i = 0; i < 4; i++){
+                copyPathPoint(cp[i], p[i]);
+            }
+            circle.remove();
+            return pitem;
+        })();
+    }
+
+    var ot1 = getRad(o1, o2);
+    var ot2 = ot1 + mpi;
+
+    var t = conf.center_angle * mpi / 180; // center_angle as radian
+    var cost = Math.cos( t );
+    // r : radius of the arc
+    var r = equation2_custom( 2 * cost - 2,
+                              (2 - 2 * cost) * (r1 + r2),
+                              2 * cost * r1 * r2 - r1 * r1 - r2 * r2 + d * d );
+    if(r == null){
+        conf.errmsg = "there're errors in calcuration of the radius";
+        return;
+    }
+    
+    var a = r - r2;
+    var b = r - r1;
+
+    // calcurates angles using the law of cosines
+    var t_a = Math.acos((b * b + d * d - a * a) / (2 * b * d));
+    if(isNaN(t_a)) return;
+    var t_b = Math.acos((d * d + a * a - b * b) / (2 * d * a));
+    if(isNaN(t_b)) return;
+
+    // adds an extra anchor for each arc, if the central angle of
+    // the arc is greater than 90 degree.
+    var add_extra_anc = (t > hpi || conf.extra_anchor == "always");
+    if( conf.extra_anchor == "never" ) add_extra_anc = false;
+    if( add_extra_anc ){
+        t /= 2;
+    }
+
+    // length of the handles for arc
+    var h = 4 * Math.tan( t / 4 ) / 3 * r;
+    
+    var shape = s0.duplicate();
+    with(shape){
+        var p = pathPoints;
+
+        // adjusts the number of the pathPoints
+        while(p.length < 4) p.add();
+        while(p.length > 4) p[p.length - 1].remove();
+        if( add_extra_anc ){
+            p.add();
+            p.add();
+        }
+        
+        var idx = 0;
+        
+        with(p[idx]){
+            anchor = setPnt(o2, ot1 + t_b, r2);
+            leftDirection = anchor;
+            rightDirection = setPnt(anchor, ot1 + t_b + hpi, h);
+        }
+        idx += 1;
+        
+        if( add_extra_anc ){
+            with(p[idx]){
+                anchor = setPnt(setPnt(o1, ot1 - t_a, r - r1), ot1 + t_b + t, r);
+                rightDirection = setPnt(anchor, ot1 + t_b + t + hpi, h);
+                leftDirection = setPnt(anchor, ot1 + t_b + t - hpi, h);
+            }
+            idx += 1;
+        }
+        
+        with(p[idx]){
+            anchor = setPnt(o1, ot2 - t_a, r1);
+            leftDirection = setPnt(anchor, ot2 - t_a - hpi, h);
+            rightDirection = anchor;
+        }
+        idx += 1;
+        
+        with(p[idx]){
+            anchor = setPnt(o1, ot2 + t_a, r1);
+            leftDirection = anchor;
+            rightDirection =setPnt(anchor, ot2 + t_a + hpi, h);
+        }
+        idx += 1;
+        
+        if( add_extra_anc ){
+            with(p[idx]){
+                anchor = setPnt(setPnt(o1, ot1 + t_a, r - r1), ot1 - t_b - t, r);
+                rightDirection = setPnt(anchor, ot1 - t_b - t + hpi, h);
+                leftDirection =setPnt(anchor, ot1 - t_b - t - hpi, h);
+            }
+            idx += 1;
+        }
+        
+        with(p[idx]){
+            anchor = setPnt(o2, ot1 - t_b, r2);
+            leftDirection = setPnt(anchor, ot1 - t_b - hpi, h);
+            rightDirection = anchor;
+        }
+    }
+    return shape;
+}
+
+// ------------------------------------------------
+function getGBCenterWidth(pi){
+  var gb = pi.geometricBounds; // left, top, right, bottom
+  return [[(gb[0] + gb[2]) / 2, (gb[1] + gb[3]) / 2], gb[2] - gb[0]];
+}
+
+// ------------------------------------------------
+function setPnt(pnt, rad, dis){
+  return [pnt[0] + Math.cos(rad) * dis,
+          pnt[1] + Math.sin(rad) * dis];
+}
+
+// ------------------------------------------------
+function dist(p1, p2) {
+  return Math.sqrt(Math.pow(p1[0] - p2[0],2) + Math.pow(p1[1] - p2[1],2));
+}
+
+// ------------------------------------------------
+function getRad(p1,p2) {
+  return Math.atan2(p2[1] - p1[1], p2[0] - p1[0]);
+}
+
+// --------- -------------------------------------
+function equation2_custom(a,b,c) {
+    var s;
+    if(a == 0){
+        if(b == 0){
+            return null;
+        } else {
+            s = -c / b;
+            return s > 0 ? s : null;
+        }
+    }
+    a *= 2;
+    var d = b * b - 2 * a * c;
+    if(d < 0){
+        return null;
+    }
+    
+    var rd = Math.sqrt(d);
+    if(d > 0){
+        var s1 = (-b + rd) / a;
+        var s2 = (-b - rd) / a;
+        if( s1 > 0 && s2 > 0){
+            // I'm not sure if it's ok
+            return Math.max( s1, s2 );
+        } else if( s1 > 0 ){
+            return s1;
+        } else if( s2 > 0 ){
+            return s2;
+        } else {
+            return null;
+        }
+    } else {
+        s = -b / a;
+        return s > 0 ? s : null;
+    }
+}
+
+// --------------------------------------
+// extract PathItems from "s" (Array of PageItems -- ex. selection),
+// and put them into an Array "paths".  If "pp_length_limit" is specified,
+// this function extracts PathItems which PathPoints length is greater
+// than this number.
+function extractPaths(s, pp_length_limit, paths){
+  for(var i = 0; i < s.length; i++){
+    if(s[i].typename == "PathItem"
+       && !s[i].guides && !s[i].clipping){
+      if(pp_length_limit
+         && s[i].pathPoints.length <= pp_length_limit){
+        continue;
+      }
+      paths.push(s[i]);
+      
+    } else if(s[i].typename == "GroupItem"){
+      // search for PathItems in GroupItem, recursively
+      extractPaths(s[i].pageItems, pp_length_limit, paths);
+      
+    } else if(s[i].typename == "CompoundPathItem"){
+      // searches for pathitems in CompoundPathItem, recursively
+      // ( ### Grouped PathItems in CompoundPathItem are ignored ### )
+      extractPaths(s[i].pathItems, pp_length_limit , paths);
+    }
+  }
+}
+// ----------------------------------------------
+function activateEditableLayer(pi){
+  var lay = activeDocument.activeLayer;
+  if(lay.locked || !lay.visible) activeDocument.activeLayer = pi.layer;
+}

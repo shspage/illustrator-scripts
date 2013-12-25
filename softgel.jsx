@@ -20,7 +20,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Thu, 19 Dec 2013 21:47:06 +0900
+// Wed, 25 Dec 2013 20:46:10 +0900
 
 main();
 function main(){
@@ -40,20 +40,32 @@ function main(){
     activateEditableLayer(sp[0]);
 
     var preview_paths = [];
+    var previewed = false;
 
-    var clearPreviewPaths = function(){
-        if(preview_paths.length) undo();
-        preview_paths = [];
+    var clearPreview = function(){
+        if( previewed ){
+            try{
+                undo();
+            } catch(e){
+                alert(e);
+            } finally {
+                preview_paths = [];
+                previewed = false;
+            }
+        }
     }
     
     var drawPreview = function(){
-        // draws for each paths
-        var shape, j;
-        for(var i = sp.length - 1; i >= 1; i--){
-            for(j = i - 1; j >= 0; j--){
-                shape = softgel(sp[i], sp[j], conf);
-                if(shape != null) preview_paths.push( shape );
+        try{
+            var shape, j;
+            for(var i = sp.length - 1; i >= 1; i--){
+                for(j = i - 1; j >= 0; j--){
+                    shape = softgel(sp[i], sp[j], conf);
+                    if(shape != null) preview_paths.push( shape );
+                }
             }
+        } finally {
+            previewed = true;
         }
     }
     
@@ -92,6 +104,17 @@ function main(){
             conf.extra_anchor = "auto";
         }
     }
+
+    var processPreview = function( is_preview ){
+        if( ! is_preview || win.chkGroup.previewChk.value){
+            win.enabled = false;
+            getValues();
+            clearPreview();
+            drawPreview();
+            if( is_preview ) redraw();
+            win.enabled = true;
+        }
+    }
     
     win.anglePanel.angleSlider.onChanging = function(){
         win.anglePanel.valueText.text = Math.round(this.value);
@@ -99,28 +122,34 @@ function main(){
     
     win.anglePanel.angleSlider.onChange = function(){
         win.anglePanel.valueText.text = Math.round(this.value);
-        if(win.chkGroup.previewChk.value){
-            getValues();
-            clearPreviewPaths();
-            drawPreview();
-            redraw();
-        }
+        processPreview( true );
     }
     
+    win.chkGroup.previewChk.onClick = function(){
+        if( this.value ){
+            processPreview( true );
+        } else {
+            if( previewed ){
+                clearPreview();
+                redraw();
+            }
+        }
+    }
+
     win.btnGroup.okBtn.onClick = function(){
-        getValues();
-        clearPreviewPaths();
-        drawPreview();
+        processPreview( false );
         win.close();
     }
     
     win.btnGroup.cancelBtn.onClick = function(){
-        clearPreviewPaths();
+        win.enabled = false;
+        clearPreview();
+        win.enabled = true;
         win.close();
     }
     win.show();
 
-    activeDocument.selection = sp.concat( preview_paths );
+    if( previewed ) activeDocument.selection = sp.concat( preview_paths );
     if( conf.errmsg != "") alert( conf.errmsg );
 }
 

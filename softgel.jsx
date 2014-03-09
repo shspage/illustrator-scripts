@@ -20,7 +20,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Wed, 25 Dec 2013 20:46:10 +0900
+// Mon, 10 Mar 2014 06:27:42 +0900
 
 main();
 function main(){
@@ -46,6 +46,7 @@ function main(){
         if( previewed ){
             try{
                 undo();
+                redraw();  // A.J.Hammerschmidt : fixed the problem with undo() crashing.
             } catch(e){
                 alert(e);
             } finally {
@@ -150,6 +151,7 @@ function main(){
     win.show();
 
     if( previewed ) activeDocument.selection = sp.concat( preview_paths );
+ //   if( previewed ) activeDocument.selection =  preview_paths;   // works, omits original selection items
     if( conf.errmsg != "") alert( conf.errmsg );
 }
 

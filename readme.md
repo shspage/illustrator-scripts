@@ -31,7 +31,7 @@ Though it results outlined (filled) paths.
 
 Illustrator's native dashes adjustment feature is ignored because it is totally out of control from JavaScript.
 
-![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakDashes.png)
+![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakdashes.png)
 
 dupAlongThePath.jsx
 ======================

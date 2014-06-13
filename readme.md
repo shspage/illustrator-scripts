@@ -28,6 +28,7 @@ You can also use "Object > Path > Outline" to break them.
 Though it results outlined (filled) paths.
 
 **Notice:**
+
 Illustrator's native dashes adjustment feature is ignored because it is totally out of control from JavaScript.
 
 ![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakDashes.png)

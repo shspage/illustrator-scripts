@@ -1,7 +1,7 @@
 illustrator-scripts
 ======================
 JavaScript scripts for Adobe Illustrator CSx.  
-test environment: Adobe Illustrator CS3, CS6 (Windows)
+test environment: Adobe Illustrator CC (Windows)
 
 batchTextEdit.jsx
 ======================
@@ -20,6 +20,17 @@ for editing the contents of the text frames all together.
   - For the multiline contents, the return code characters are replaced to the alternative ones (default:"@/") in the dialog.  When applying the edited contents, they are replaced to the return code. This means you can't use "@/" itself in the contents.  You can change it in the setting part of the script.
 
   - The order of the texts in the dialog depends on the rectangle area surrounding each top-left corner of the selected textframes.  If the width of the area is greater than the height of it, the order is from left to right. Otherwise from top to bottom.
+
+breakDashes.jsx
+======================
+breaks each dashed line in the selection into its components.  
+You can also use "Object > Path > Outline" to break them.  
+Though it results outlined (filled) paths.
+
+**Notice:**
+Illustrator's native dashes adjustment feature is ignored because it is totally out of control from JavaScript.
+
+![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakDashes.png)
 
 dupAlongThePath.jsx
 ======================
@@ -120,7 +131,7 @@ Note : Combining the shapes using Pathfinder may results several overlapping anc
 
 
 ----------------------
-Copyright(c) 2013 Hiroyuki Sato  
+Copyright(c) 2013-2014 Hiroyuki Sato  
 [https://github.com/shspage](https://github.com/shspage)  
 This script is distributed under the MIT License.  
 See the LICENSE file for details.  

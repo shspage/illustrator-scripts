@@ -139,7 +139,7 @@ function adjustDashes(sd, line_length, grp){
         sd1 = [];
         
     } else {
-        var dashes_count = Math.round(line_length / dashes_length) || 1;
+        var dashes_count = Math.floor(line_length / dashes_length + 0.6) || 1;
         
         sd1 = sd.slice(0);
         

@@ -24,7 +24,7 @@
 
 // test env: Adobe Illustrator CS3, CS6 (Windows)
 
-// Copyright(c) 2013 Hiroyuki Sato
+// Copyright(c) 2013-2014 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
@@ -67,7 +67,7 @@ function main(){
 
 	// show a dialog
 	var win = new Window("dialog", "batchTextEdit");
-	
+
 	// add edittext
 	var et_opt = { multiline:true, scrolling:true };
 	var ver16 = ( app.version.substr(0, 2) > "15");
@@ -78,9 +78,13 @@ function main(){
 	et.active = true;
 
 	// add statictext
-	var st_text = "* \"" + return_code_alt + "\" means a return code"
-	if( !ver16 ) st_text += "\r* Use ctrl+enter for new line"
-	win.add("statictext", undefined, st_text, { multiline:true });
+	var st_text = "* \"" + return_code_alt + "\" means a return code";
+	win.add("statictext", undefined, st_text, { multiline:false });
+    
+	if( !ver16 ){
+		var st_text1 = "* Use ctrl+enter for new line";
+		win.add("statictext", undefined, st_text1, { multiline:false });
+	}
 
 	// add buttons
 	var gr = win.add("group");

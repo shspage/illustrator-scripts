@@ -107,6 +107,17 @@ This script adds a new layer that has custom selection mark color above the acti
 (&L) in the filename is for the Alt key shortcut in Windows.  
 You can run the script by Alt-F->R->L.
 
+notches.jsx
+======================
+draws sewing notches along the selected segments.  
+Usage: Select the segments of paths and run this script.  
+![desc_notch](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_notch.png)
+
+**Note:**
+
+Every set of notches are grouped.  
+Every notch line has an anchor on the center of it.  So you can delete half of them easily.
+
 ovalize.jsx
 ======================
 for turning every selected path into an oval which fits the width and the height of the path.  

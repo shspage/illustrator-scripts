@@ -129,7 +129,8 @@ This script requires "perlin-noise-simplex.js" by Sean McCullough.
 [https://gist.github.com/banksean/304522](https://gist.github.com/banksean/304522)  
 
 
-```//@include "lib/perlin-noise-simplex.js"
+```javascript
+//@include "lib/perlin-noise-simplex.js"
 ```
 
 This declaration on the first line of the script assumes "perlin-noise-simplex.js" is

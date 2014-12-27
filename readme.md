@@ -115,6 +115,26 @@ This script adds a new layer that has custom selection mark color above the acti
 (&L) in the filename is for the Alt key shortcut in Windows.  
 You can run the script by Alt-F->R->L.
 
+noiseFill.jsx
+======================
+changes the colors of the selected paths using Perlin noise.  
+![desc_noiseFill](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_noisefill.png)
+
+Usage: Select filled paths and run this script.  
+(The objects other than filled paths in the selection are ignored.)
+
+**Notice:**
+
+This script requires "perlin-noise-simplex.js" by Sean McCullough.  
+[https://gist.github.com/banksean/304522](https://gist.github.com/banksean/304522)  
+
+
+```//@include "lib/perlin-noise-simplex.js"
+```
+
+This declaration on the first line of the script assumes "perlin-noise-simplex.js" is
+placed under "lib" folder under "Scripts" folder of Adobe Illlustrator.
+
 notches.jsx
 ======================
 draws sewing notches along the selected segments.  

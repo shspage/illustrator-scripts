@@ -121,7 +121,8 @@ changes the colors of the selected paths using Perlin noise.
 ![desc_noiseFill](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_noisefill2.png)
 
 Usage: Select filled paths and run this script.  
-(The objects other than filled paths in the selection are ignored.)
+(The objects other than filled paths in the selection are ignored.)  
+The pattern of the noise is varied every time you turn the preview checkbox on.
 
 **Notice:**
 

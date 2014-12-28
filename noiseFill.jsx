@@ -20,7 +20,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// 2014-12-28
+// Sun, 28 Dec 2014 10:10:18 +0900
 
 (function(){
     var _perlin;
@@ -28,6 +28,8 @@
     var _grayRangeMid;
     var _opts = {};
     var _paths = [];
+    var _rect;
+    var _fullLength;
     
     var main = function(){
         var script_name = "noiseFill";
@@ -36,6 +38,9 @@
 
         getPathItemsInSelection(1, _paths);
         if(_paths.length < 1) return;
+        
+        _rect = getSelectedRect(_paths);
+        _fullLength = Math.max(_rect.width, _rect.height);
         
         // dialog
         var previewed = false;
@@ -162,14 +167,10 @@
         _n = Math.random() * 10;
         _grayRangeMid = (_opts.gray_max - _opts.gray_min) / 2;
         
-        var rect = getSelectedRect(_paths);
-    
         for(var i = 0; i < _paths.length; i++){
-            if(_paths[i].filled){
-                col = new GrayColor();
-                col.gray = getGrayValue(_paths[i], rect);
-                _paths[i].fillColor = col;
-            }
+            col = new GrayColor();
+            col.gray = getGrayValue(_paths[i]);
+            _paths[i].fillColor = col;
         }
     };
     // -----------------------------------------------
@@ -187,10 +188,10 @@
         this.height = t - b;
     };
     // -----------------------------------------------
-    var getGrayValue = function(item, rect){
+    var getGrayValue = function(item){
         var center = getCenter(item);
-        var kx = (center.x - rect.left) / rect.width * _opts.noise_factor;
-        var ky = (center.y - rect.bottom) / rect.height * _opts.noise_factor;
+        var kx = (center.x - _rect.left) / _fullLength * _opts.noise_factor;
+        var ky = (center.y - _rect.bottom) / _fullLength * _opts.noise_factor;
         var noiseValue = _perlin.noise(_n + kx, _n + ky) + 1;
         return noiseValue * _grayRangeMid + _opts.gray_min;
     };
@@ -235,7 +236,8 @@
     var extractPaths = function(s, pp_length_limit, paths){
         for(var i = 0; i < s.length; i++){
             if(s[i].typename == "PathItem"
-               && !s[i].guides && !s[i].clipping){
+               && !s[i].guides && !s[i].clipping
+               && s[i].filled){
                 if(pp_length_limit
                    && s[i].pathPoints.length <= pp_length_limit){
                     continue;

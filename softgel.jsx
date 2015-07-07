@@ -1,6 +1,6 @@
 // softgel
 
-// When you want to create softgel capsule like shapes, this script may
+// When you want to create a softgel capsule like shape, this script may
 // help you.  
 
 // USAGE : Draw circles and select them, then run this script.  Adjust
@@ -10,22 +10,25 @@
 // Note : Combining the shapes using Pathfinder may results several
 // overlapping anchor points on the path.  if it occurs, it may help to
 // solve it to use my another script "Merge Overlapped Anchors.js
-// (http://park12.wakwak.com/~shp/lc/et/en_aics_script.html)
+// (http://shspage.com/aijs/en/#merge)
 // This script merges overlapping anchors on the path.
 
-// test env: Adobe Illustrator CC (Win/Mac), CS3 (Win)
+// test env: Adobe Illustrator CC (Win/Mac)
 
-// Copyright(c) 2013 Hiroyuki Sato
+// Copyright(c) 2013-2015 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Mon, 10 Mar 2014 06:27:42 +0900
+// Tue, 07 Jul 2015 20:17:27 +0900
 
 main();
 function main(){
     var conf = {
         center_angle : 90,
+        slider_defaultvalue : 90,
+        slider_minvalue : 1,
+        slider_maxvalue : 180,
         extra_anchor : "auto",
         errmsg : ""
       }
@@ -77,8 +80,11 @@ function main(){
 
     win.anglePanel = win.add("panel", [15, 15, 240, 61], "center angle");
     win.anglePanel.orientation = "row";
-    win.anglePanel.angleSlider = win.anglePanel.add("slider", [15, 10, 165, 27], 90, 1, 180);
-    win.anglePanel.valueText = win.anglePanel.add("statictext", [175, 12, 210, 25], 90);
+    win.anglePanel.angleSlider = win.anglePanel.add("slider", [15, 10, 165, 27],
+        conf.slider_defaultvalue, conf.slider_minvalue, conf.slider_maxvalue);
+    win.anglePanel.txtBox = win.anglePanel.add("edittext", [175, 14, 220, 34], 90);
+    win.anglePanel.txtBox.justify = "right";
+    win.anglePanel.txtBox.helpTip = "hit TAB to set the input value temporarily";
     
     win.radioPanel = win.add("panel", [15, 76, 215, 122], "extra anchor");
     win.radioPanel.orientation = "row";
@@ -95,7 +101,7 @@ function main(){
     win.btnGroup.cancelBtn = win.btnGroup.add("button", undefined, "Cancel");
 
     var getValues = function(){
-        conf.center_angle = win.anglePanel.valueText.text;
+        conf.center_angle = win.anglePanel.txtBox.text;
         
         if(win.radioPanel.alwaysRb.value){
             conf.extra_anchor = "always";
@@ -116,13 +122,29 @@ function main(){
             win.enabled = true;
         }
     }
-    
+
+    win.anglePanel.txtBox.onChange = function(){
+      var v = parseFloat(this.text);
+      
+      if(isNaN(v)){
+        v = conf.slider_defaultvalue;
+      } else if(v < conf.slider_minvalue){
+        v = conf.slider_minvalue;
+      } else if(v > conf.slider_maxvalue){
+        v = conf.slider_maxvalue;
+      }
+       this.text = v;
+       
+      win.anglePanel.angleSlider.value = v;
+      processPreview( true );
+    }
+  
     win.anglePanel.angleSlider.onChanging = function(){
-        win.anglePanel.valueText.text = Math.round(this.value);
+        win.anglePanel.txtBox.text = Math.round(this.value);
     }
     
     win.anglePanel.angleSlider.onChange = function(){
-        win.anglePanel.valueText.text = Math.round(this.value);
+        win.anglePanel.txtBox.text = Math.round(this.value);
         processPreview( true );
     }
     

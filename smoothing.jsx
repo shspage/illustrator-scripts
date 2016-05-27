@@ -36,7 +36,12 @@
         }
     
         // gets selected status of each pathPoint
-        var selectedSpec = getSelectedSpec(paths);
+        var result = getSelectedSpec(paths);
+        if(result.noAnchorSelected){
+            alert("No Anchor Selected");
+            return;
+        }
+        var selectedSpec = result.specs;
             
         var previewed = false;
         
@@ -266,19 +271,23 @@
      * gets the selected status of each pathPoint of each path.
      * (true if selected)
      * @param  {[PathItem]} paths an array of PathItems
-     * @return {[[boolean]]}       selected status
+     * @return specs, noAnchorSelected {[[boolean]], boolean} selected status
      */
     function getSelectedSpec( paths ){
         var specs = [];
+        var noAnchorSelected = true;
+        
         for( var i = 0, iEnd = paths.length; i < iEnd; i++ ){
             var pp = paths[i].pathPoints;
             var spec = [];
             for(var j = 0; j < pp.length; j++ ){
-                spec.push( isSelected(pp[j]) );
+                var stat = isSelected(pp[j]);
+                if(stat) noAnchorSelected = false;
+                spec.push(stat);
             }
             specs.push( spec );
         }
-        return specs;
+        return { specs : specs, noAnchorSelected : noAnchorSelected };
     }
     // -----------------------------------------------
     /**

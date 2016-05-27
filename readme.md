@@ -161,6 +161,16 @@ Draw a circle with the ellipse tool, select it, run this script, input the numbe
 
 Please notice the case 3 of the above image. This is a feature for now.
 
+smoothing.jsx (Catmull-Rom spline)
+======================
+applys smoothing to selected pathPoints on selected polygon paths using the Catmull-Rom spline.  
+you can adjust the tension with a slider.  
+![desc_smoothing](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_smoothing.png)
+
+USAGE : Select anchors to smooth or whole paths and run this script.  Adjust "tension" in the dialog.  then click OK.
+
+reference : Catmull-Rom to Bezier conversion. [https://pomax.github.io/bezierinfo/#catmullconv](https://pomax.github.io/bezierinfo/#catmullconv)
+
 softgel.jsx
 ======================
 When you want to create softgel capsule like shapes, this script may help you.  

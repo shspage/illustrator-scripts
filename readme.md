@@ -32,7 +32,7 @@ Though in this case, it results outlined (filled) paths.
 
 **Notice:**
 
-Illustrator's native dashes adjustment feature is ignored because it is totally out of control from JavaScript.
+To make the corners and the ends neat, this script adjusts interval of dashes with its own algorithm. Because Illustrator's native dashes adjustment feature is out of control from JavaScript. So the result can differ from the original. (like the following image)
 
 ![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakdashes1.png)
 

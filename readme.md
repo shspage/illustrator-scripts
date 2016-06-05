@@ -3,17 +3,12 @@ illustrator-scripts
 JavaScript scripts for Adobe Illustrator CSx.  
 test environment: Adobe Illustrator CC (Windows)
 
-**Note: How to download**
-
-1. To download whole contents, use "Download ZIP" button on the right side of this page.
-
-2. To download a script, click the script name in the above list. The page of the code will open. Right click on the "Raw" button, and use "Save As...".
-
-Right clicking on the script name (link) and using "Save as" will download a source code of the webpage, not a script file.
+**Use Download button (on the right side of this page) to download ZIP file.**  
+**If you use right click on each file to save, you'll get an HTML file.**
 
 batchTextEdit.jsx
 ======================
-for editing the contents of the text frames all together.
+This script is for editing the contents of the text frames all together.
 
 **Usage:**
 
@@ -33,13 +28,13 @@ breakDashes.jsx
 ======================
 breaks each dashed line in the selection into its components.  
 You can also use "Object > Path > Outline" to break them.  
-Though it results outlined (filled) paths.
+Though in this case, it results outlined (filled) paths.
 
 **Notice:**
 
 Illustrator's native dashes adjustment feature is ignored because it is totally out of control from JavaScript.
 
-![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakdashes.png)
+![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakdashes1.png)
 
 dupAlongThePath.jsx
 ======================
@@ -126,7 +121,7 @@ The pattern of the noise is varied every time you turn the preview checkbox on.
 
 **Notice:**
 
-This script requires "perlin-noise-simplex.js" by Sean McCullough.  
+This script requires "perlin-noise-simplex.js" by Sean McCullough. (included in this repository)
 [https://gist.github.com/banksean/304522](https://gist.github.com/banksean/304522)  
 
 
@@ -134,8 +129,9 @@ This script requires "perlin-noise-simplex.js" by Sean McCullough.
 //@include "lib/perlin-noise-simplex.js"
 ```
 
-This declaration on the first line of the script assumes "perlin-noise-simplex.js" is
-placed under "lib" folder under "Scripts" folder of Adobe Illlustrator.
+This directive on the first line in the script assumes "perlin-noise-simplex.js" is
+placed under "lib" folder under "Scripts" folder of Adobe Illlustrator.  
+If you use the older version of Illustrator, you may need to modify this line.  See inside "lib" folder for details.
 
 notches.jsx
 ======================

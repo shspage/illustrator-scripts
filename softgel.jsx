@@ -21,6 +21,8 @@
 // See the LICENSE file for details.
 
 // Tue, 07 Jul 2015 20:17:27 +0900
+// Sat, 26 Nov 2016 19:15:51 +0900
+// -- add try...finally statement around parts changing win.enabled property.
 
 main();
 function main(){
@@ -114,12 +116,17 @@ function main(){
 
     var processPreview = function( is_preview ){
         if( ! is_preview || win.chkGroup.previewChk.value){
-            win.enabled = false;
-            getValues();
-            clearPreview();
-            drawPreview();
-            if( is_preview ) redraw();
-            win.enabled = true;
+            try{
+                win.enabled = false;
+                getValues();
+                clearPreview();
+                drawPreview();
+                if( is_preview ) redraw();
+            } catch(e){
+                alert(e);
+            } finally{
+                win.enabled = true;
+            }
         }
     }
 
@@ -165,9 +172,14 @@ function main(){
     }
     
     win.btnGroup.cancelBtn.onClick = function(){
-        win.enabled = false;
-        clearPreview();
-        win.enabled = true;
+        try{
+            win.enabled = false;
+            clearPreview();
+        } catch(e){
+            alert(e);
+        } finally{
+            win.enabled = true;
+        }
         win.close();
     }
     win.show();

@@ -11,6 +11,7 @@
 
 // test env: Adobe Illustrator CS3, CS6 (Windows)
 // 2013-02-09
+// 2016-11-26 modify not to activate textedit (fix a problem which forces an extra click after closing the dialog)
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
@@ -121,7 +122,7 @@ var EditTextWithLabel = function(win, label, defaultvalue){
     gr.add("statictext", undefined, label);
     this.et = gr.add("edittext", undefined, defaultvalue);
     this.et.characters = 10;
-    this.et.active = true;
+    //this.et.active = true;
 }
 EditTextWithLabel.prototype = {
     getValue : function(){

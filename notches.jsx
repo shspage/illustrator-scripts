@@ -11,6 +11,8 @@
 // See the LICENSE file for details.
 
 // Mon, 22 Sep 2014 23:53:27 +0900
+// Sat, 26 Nov 2016 19:13:07 +0900
+// -- modify not to activate textedit (fix a problem which forces an extra click after closing the dialog)
 
 function main(){
     var script_name = "Notches";
@@ -33,7 +35,7 @@ function main(){
         div_count : new EditTextWithLabel(win, "div count:", 4),
         notch_length : new EditTextWithLabel(win, "notch length(mm):", 10)
         };
-    edits.div_count.activate();
+    //edits.div_count.activate();
     
     addOkCancelButtons(win, (function(){
         var opts = {
@@ -62,7 +64,7 @@ var EditTextWithLabel = function(win, label, defaultvalue){
     gr.add("statictext", undefined, label);
     this.et = gr.add("edittext", undefined, defaultvalue);
     this.et.characters = 4;
-    this.et.active = true;
+    //this.et.active = true;
 }
 EditTextWithLabel.prototype = {
     getValue : function(){

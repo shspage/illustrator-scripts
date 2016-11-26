@@ -95,12 +95,17 @@
         
         var processPreview = function( is_preview ){
             if( ! is_preview || win.chkGroup.previewChk.value){
-                win.enabled = false;
-                getValues();
-                clearPreview();
-                drawPreview();
-                if( is_preview ) redraw();
-                win.enabled = true;
+                try{
+                    win.enabled = false;
+                    getValues();
+                    clearPreview();
+                    drawPreview();
+                    if( is_preview ) redraw();
+                } catch(e){
+                    alert(e);
+                } finally{
+                    win.enabled = true;
+                }
             }
         }
     
@@ -145,9 +150,14 @@
         }
         
         win.btnGroup.cancelBtn.onClick = function(){
-            win.enabled = false;
-            clearPreview();
-            win.enabled = true;
+            try{
+                win.enabled = false;
+                clearPreview();
+            } catch(e){
+                alert(e);
+            } finally{
+                win.enabled = true;
+            }
             win.close();
         }
         win.show();

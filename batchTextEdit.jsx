@@ -75,7 +75,7 @@ function main(){
 
 	var et = win.add("edittext",[0, 0, edittext_width, edittext_height], "", et_opt);
 	et.text = conts.join("\n");
-	et.active = true;
+	//et.active = true;
 
 	// add statictext
 	var st_text = "* \"" + return_code_alt + "\" means a return code";

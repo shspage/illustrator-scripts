@@ -21,6 +21,8 @@
 // See the LICENSE file for details.
 
 // Sun, 28 Dec 2014 10:10:18 +0900
+// Sat, 26 Nov 2016 19:10:05 +0900
+// -- add try...finally statement around parts changing win.enabled property.
 
 (function(){
     var _perlin;
@@ -96,11 +98,16 @@
         
         var processPreview = function( is_preview ){
             if( ! is_preview || previewChk.value){
-                win.enabled = false;
-                clearPreview();
-                drawPreview();
-                if( is_preview ) redraw();
-                win.enabled = true;
+                try{
+                    win.enabled = false;
+                    clearPreview();
+                    drawPreview();
+                    if( is_preview ) redraw();
+                } catch(e){
+                    alert(e);
+                } finally{
+                    win.enabled = true;
+                }
             }
         }
         
@@ -121,9 +128,14 @@
         }
         
         btn_cancel.onClick = function(){
-            win.enabled = false;
-            clearPreview();
-            win.enabled = true;
+            try{
+                win.enabled = false;
+                clearPreview();
+            } catch(e){
+                alert(e);
+            } finally{
+                win.enabled = true;
+            }
             win.close();
         }
 

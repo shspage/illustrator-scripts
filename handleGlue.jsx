@@ -26,7 +26,7 @@
 // "add anchor" : If true, it adds an anchor point at the point
 // on the path that the selected anchor moved to.
 
-// test env: Adobe Illustrator CC2017 / CS3 (Win)
+// test env: Adobe Illustrator CC (Win)
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
@@ -156,7 +156,7 @@ function main(){
     win.show();
 }
 // ----------------------------------------------
-// param opt : { mode, multi, add_anchor }
+// param opt : { mode, multi, add_anchor, previewed }
 //   mode : 1 = "nearest", not 1 = "angle"
 //   multi : true / false
 //   add_anchor : true / false
@@ -164,15 +164,9 @@ function main(){
 function handleGlue(opt, paths){
     var mode, multi, add_anchor;
     
-    if(!opt){
-        if( mode == undefined ) mode = 1;
-        if( multi == undefined ) multi = false;
-        if( add_anchor == undefined ) add_anchor = false;
-    } else {
-        mode = opt.mode;
-        multi = opt.multi;
-        add_anchor = opt.add_anchor;
-    }
+    mode = opt.mode;
+    multi = opt.multi;
+    add_anchor = opt.add_anchor;
     
     // various values
     var conf = {
@@ -993,9 +987,3 @@ function addAnchorAtT(pp, idx1, idx2, t, b, pnt){
     }
 }
 main();
-//handleGlue();
-
-function performUndo(){
-    // for extension use
-    app.undo();
-}

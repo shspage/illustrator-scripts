@@ -26,24 +26,153 @@
 // "add anchor" : If true, it adds an anchor point at the point
 // on the path that the selected anchor moved to.
 
-// test env: Adobe Illustrator CC (Win / Mac)
+// test env: Adobe Illustrator CC2017 / CS3 (Win)
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Sat, 07 Dec 2013 20:02:50 +0900
+// released: 2013.12.07  20:02:50 +0900
+// last update: 2016.11.30
 
+function main(){
+    // for parameter details, see the description of the script.
+    var opt = {
+        // mode : 1 = "nearest", not 1 = "angle"
+        mode : 1,
+        multi : false,
+        add_anchor : false,
+
+        // internal use
+        previewed : false
+    }
+
+    if(documents.length < 1) return;
+
+    var paths = [];
+    
+    getPathItemsInSelection(1, paths);
+    if(paths.length < 2){
+        alert("Abort:\nPlease select 2 or more paths.\n"
+              + "Each path must have at least 2 anchor points.");
+        return;
+    }
+
+    var selectedSpec = getSelectedSpec(paths);
+
+    var clearPreview = function(){
+        if( opt.previewed ){
+            try{
+                undo();
+                applySelectedSpec( paths, selectedSpec );
+            } catch(e){
+                alert(e);
+            } finally {
+                opt.previewed = false;
+            }
+        }
+    }
+
+    var drawPreview = function(){
+        handleGlue(opt, paths);
+    }
+
+    var win = new Window("dialog", "handleGlue");
+    win.alignChildren = "fill";
+
+    win.radioPanel = win.add("panel", undefined, "mode");
+    win.radioPanel.orientation = "row";
+    win.radioPanel.nearest = win.radioPanel.add("radiobutton", undefined, "nearest");
+    win.radioPanel.angle = win.radioPanel.add("radiobutton", undefined, "angle");
+    win.radioPanel.nearest.value = (opt.mode == 1);
+    
+    win.optionChkGroup = win.add("group");
+    win.optionChkGroup.orientation = "row";
+    win.optionChkGroup.alignment = "center";
+    win.optionChkGroup.multiChk = win.optionChkGroup.add("checkbox", undefined, "multi");
+    win.optionChkGroup.addAnchorChk = win.optionChkGroup.add("checkbox", undefined, "add anchor");
+    win.optionChkGroup.multiChk.value = opt.multi;
+    win.optionChkGroup.addAnchorChk.value = opt.add_anchor;
+    
+    win.chkGroup = win.add("group");
+    win.chkGroup.alignment = "center";
+    win.chkGroup.previewChk = win.chkGroup.add("checkbox", undefined, "preview");
+    
+    win.btnGroup = win.add("group");
+    win.btnGroup.alignment = "center";
+    win.btnGroup.okBtn = win.btnGroup.add("button", undefined, "OK");
+    win.btnGroup.cancelBtn = win.btnGroup.add("button", undefined, "Cancel");
+
+    var getValues = function(){
+        opt.mode = win.radioPanel.nearest.value ? 1 : 0;
+        opt.multi = win.optionChkGroup.multiChk.value;
+        opt.add_anchor = win.optionChkGroup.addAnchorChk.value;
+    }
+    
+    var processPreview = function( is_preview ){
+        if( ! is_preview || win.chkGroup.previewChk.value){
+            try{
+                win.enabled = false;
+                getValues();
+                clearPreview();
+                drawPreview();
+                if( is_preview ) redraw();
+            } catch(e){
+                alert(e);
+            } finally{
+                win.enabled = true;
+            }
+        }
+    }
+    
+    win.chkGroup.previewChk.onClick = function(){
+        if( this.value ){
+            processPreview( true );
+        } else {
+            if( opt.previewed ){
+                clearPreview();
+                redraw();
+            }
+        }
+    }
+
+    win.btnGroup.okBtn.onClick = function(){
+        processPreview( false );
+        win.close();
+    }
+    
+    win.btnGroup.cancelBtn.onClick = function(){
+        try{
+            win.enabled = false;
+            clearPreview();
+        } catch(e){
+            alert(e);
+        } finally{
+            win.enabled = true;
+        }
+        win.close();
+    }
+    win.show();
+}
 // ----------------------------------------------
-// for parameter details, see the description of the script.
-// param mode : 1 = "nearest", not 1 = "angle"
-// param multi : true / false
-// param add_anchor : true / false
-function handleGlue( mode, multi, add_anchor){
-    if( mode == undefined ) mode = 1;
-    if( multi == undefined ) multi = false;
-    if( add_anchor == undefined ) add_anchor = false;
+// param opt : { mode, multi, add_anchor }
+//   mode : 1 = "nearest", not 1 = "angle"
+//   multi : true / false
+//   add_anchor : true / false
+// param paths : an array of PathItem, each item has at least 2 PathPoints
+function handleGlue(opt, paths){
+    var mode, multi, add_anchor;
+    
+    if(!opt){
+        if( mode == undefined ) mode = 1;
+        if( multi == undefined ) multi = false;
+        if( add_anchor == undefined ) add_anchor = false;
+    } else {
+        mode = opt.mode;
+        multi = opt.multi;
+        add_anchor = opt.add_anchor;
+    }
     
     // various values
     var conf = {
@@ -56,15 +185,6 @@ function handleGlue( mode, multi, add_anchor){
 
     var handleGlueFunc = mode == 1 ? handleGlue1 : handleGlue2;
   
-    var paths = [];
-    
-    getPathItemsInSelection(1, paths);
-    if(paths.length < 2){
-        alert("Abort:\nPlease select 2 or more paths.\n"
-              + "Each path must have at least 2 anchor poitns.");
-        return;
-    }
-
     var lines = [];  // paths to move their ends
     var shapes = []; // paths to find the nearest point on them
     var i;
@@ -107,13 +227,13 @@ function handleGlue( mode, multi, add_anchor){
 
         if(isSelected(p[0])){
             processed = true;
-            errmsg = handleGlueFunc(p[0], shapes, true, conf);
+            errmsg = handleGlueFunc(p[0], shapes, true, conf, opt);
             if(errmsg != "") addErrorMessage();
         }
     
         if(isSelected(p[p.length - 1])){
             processed = true;
-            errmsg = handleGlueFunc(p[p.length - 1], shapes, false, conf);
+            errmsg = handleGlueFunc(p[p.length - 1], shapes, false, conf, opt);
             if(errmsg != "") addErrorMessage();
         }
     }
@@ -127,7 +247,7 @@ function handleGlue( mode, multi, add_anchor){
 }
 
 // ----------------------------------------------
-function handleGlue2(p, paths, right_direction, conf){
+function handleGlue2(p, paths, right_direction, conf, opt){
     var errmsg = "";
     var handle = right_direction ? p.rightDirection : p.leftDirection;
     var point_desc = right_direction ? "start point" : "end point";
@@ -202,6 +322,7 @@ function handleGlue2(p, paths, right_direction, conf){
     }
     
     if(sol.d_min > 0){
+        opt.previewed = true;
         movePathPointTo(p, sol.d_min_pnt);
         
         if( right_direction ){
@@ -263,7 +384,7 @@ function nerestPointOnSegment(p, a, b, conf){
 // param paths : array of pathItem,
 // param right_direction : true if it manipulates rightDirection
 // return error message
-function handleGlue1(p, paths, right_direction, conf){
+function handleGlue1(p, paths, right_direction, conf, opt){
     var errmsg = "";
     var point_desc = right_direction ? "start point" : "end point";
 
@@ -292,6 +413,7 @@ function handleGlue1(p, paths, right_direction, conf){
             // move anchor
             var d_min_pnt = np_spec.b.pnt( np_spec.t );
 
+            opt.previewed = true;
             movePathPointTo(p, d_min_pnt);
             
             if(conf.add_anchor){
@@ -605,7 +727,30 @@ function extractPaths(s, pp_length_limit, paths){
     }
   }
 }
-
+// -----------------------------------------------
+function getSelectedSpec( paths ){
+    var specs = [];
+    var j, pp, spec;
+    for( var i = 0; i < paths.length; i++ ){
+        pp = paths[i].pathPoints;
+        spec = [];
+        for( j = 0; j < pp.length; j++ ){
+            spec.push( pp[j].selected );
+        }
+        specs.push( spec );
+    }
+    return specs;
+}
+// -----------------------------------------------
+function applySelectedSpec( paths, specs ){
+    var j, pp;
+    for( var i = 0; i < paths.length; i++ ){
+        pp = paths[i].pathPoints;
+        for( j = 0; j < pp.length; j++ ){
+            pp[j].selected = specs[i][j];
+        }
+    }
+}
 // Bezier ================================
 var Bezier = function(pp, idx1, idx2){
   this.pp  = pp;
@@ -847,7 +992,8 @@ function addAnchorAtT(pp, idx1, idx2, t, b, pnt){
         vps[i].apply( pp[i] );
     }
 }
-handleGlue();
+main();
+//handleGlue();
 
 function performUndo(){
     // for extension use

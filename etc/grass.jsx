@@ -115,11 +115,16 @@ function main(){
         
     var processPreview = function( is_preview ){
         if( ! is_preview || previewChk.value){
-            win.enabled = false;
-            clearPreview();
-            drawPreview();
-            if( is_preview ) redraw();
-            win.enabled = true;
+            try{
+                win.enabled = false;
+                clearPreview();
+                drawPreview();
+                if( is_preview ) redraw();
+            } catch(e){
+                alert(e);
+            } finally {
+                win.enabled = true;
+            }
         }
     }
     
@@ -144,9 +149,14 @@ function main(){
     }
     
     btn_cancel.onClick = function(){
-        win.enabled = false;
-        clearPreview();
-        win.enabled = true;
+        try{
+            win.enabled = false;
+            clearPreview();
+        } catch(e){
+            alert(e);
+        } finally {
+            win.enabled = true;
+        }
         win.close();
     }
 

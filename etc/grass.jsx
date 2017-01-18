@@ -4,11 +4,15 @@
 // See the description image for the optional values.
 
 // Note:
-// Smaller width value causes longer calculation time.
+// * Smaller width value causes longer calculation time.
+// * Because of this issue, preview checkbox is forced unchecked
+//   when any value in the dialog is changed. Please check it
+//   manually again to draw a preview.
 
 // test env: Adobe Illustrator CS3, CS6 (Windows)
 // 2013-01-26
 // 2016-11-26 modify not to activate textedit (fix a problem which forces an extra click after closing the dialog)
+// 2017-01-18 add an "invert" checkbox and a preview button
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
@@ -19,6 +23,16 @@
 function main(){
     const SCRIPTNAME = "grass";
 
+    var conf = {
+        width : 3.0,
+        height : 20.0,
+        hfluc : 20.0,
+        hrot : 20.0,
+        bfluc : 2.0,
+        hrate : 50.0,
+        invert : false
+    };
+
     var paths = [];
     getPathItemsInSelection( 1, paths );
     if( paths.length < 1 ){
@@ -26,28 +40,116 @@ function main(){
         return;
     }
 
+    var selectedSpec = getSelectedSpec(paths);
+
+    // dialog
+    var previewed = false;
+    
+    var clearPreview = function(){
+        if( previewed ){
+            try{
+                undo();
+                applySelectedSpec( paths, selectedSpec );
+            } catch(e){
+                alert(e);
+            } finally {
+                previewed = false;
+            }
+        }
+    }
+    
+    var drawPreview = function(){
+        var ok = getValues();
+        if(ok){
+            try{
+                createGrass(paths, conf);
+            } finally {
+                previewed = true;
+            }
+        }
+    }
+    
     var win = new Window("dialog", SCRIPTNAME);
     win.alignChildren = "right";
     
     var ets = {
-        et_width : new EditTextWithLabel(win, "width:", 3.0),
-        et_height : new EditTextWithLabel(win, "height:", 20.0),
-        et_hfluc : new EditTextWithLabel(win, "h fluctuation (%):", 20.0),
-        et_hrot : new EditTextWithLabel(win, "rotation (%):", 20.0),
-        et_bfluc : new EditTextWithLabel(win, "base fluctuation:", 2.0),
-        et_hrate : new EditTextWithLabel(win, "handle rate (%):", 50)
+        et_width : new EditTextWithLabel(win, "width:", conf.width),
+        et_height : new EditTextWithLabel(win, "height:", conf.height),
+        et_hfluc : new EditTextWithLabel(win, "h fluctuation (%):", conf.hfluc),
+        et_hrot : new EditTextWithLabel(win, "rotation (%):", conf.hrot),
+        et_bfluc : new EditTextWithLabel(win, "base fluctuation:", conf.bfluc),
+        et_hrate : new EditTextWithLabel(win, "handle rate (%):", conf.hrate)
         };
+
+    // preview checkbox
+    var chkGrp = win.add("group");
+    chkGrp.alignment = "center";
+    var invertChk = chkGrp.add("checkbox", undefined, "invert");
+    var previewChk = chkGrp.add("checkbox", undefined, "preview");
+
+    for(var et in ets){
+        ets[et].bindOnChangeHandler(previewChk);
+    }
     
-    addOkCancelButtons(win, (function(){
-        var ok = true;
-        if(ets.et_width.getValue() <= 0 ){
-            alert("The value for the width is invalid");
-            ok = false;
-        } else {
-            createGrass(paths, ets);
+    // buttons
+    var btnGrp = win.add("group");
+    var btn_ok = btnGrp.add("button", undefined, "OK");
+    var btn_cancel = btnGrp.add("button", undefined, "Cancel");
+
+    var getValues = function(){
+        conf.width  = ets.et_width.getValue() / 2.0;
+        conf.height = ets.et_height.getValue();
+        conf.hfluc  = ets.et_hfluc.getValue() / 100.0;
+        conf.hrot   = ets.et_hrot.getValue() / 100.0 * conf.height;
+        conf.bfluc  = ets.et_bfluc.getValue();
+        conf.hrate  = ets.et_hrate.getValue() / 100.0;
+        conf.invert = invertChk.value;
+
+        if(conf.width <= 0 ){
+            alert("ERROR: The value for the width is invalid");
+            return false;
         }
-        return ok;
-    }));
+        
+        return true;
+    }
+        
+    var processPreview = function( is_preview ){
+        if( ! is_preview || previewChk.value){
+            win.enabled = false;
+            clearPreview();
+            drawPreview();
+            if( is_preview ) redraw();
+            win.enabled = true;
+        }
+    }
+    
+    invertChk.onClick = function(){
+        previewChk.value = false;
+    }
+
+    previewChk.onClick = function(){
+        if( this.value ){
+            processPreview( true );
+        } else {
+            if( previewed ){
+                clearPreview();
+                redraw();
+            }
+        }
+    }
+
+    btn_ok.onClick = function(){
+        if(!previewed) processPreview( false );
+        win.close();
+    }
+    
+    btn_cancel.onClick = function(){
+        win.enabled = false;
+        clearPreview();
+        win.enabled = true;
+        win.close();
+    }
+
     win.show();
 }
 // -----------------------------------------------
@@ -62,30 +164,26 @@ EditTextWithLabel.prototype = {
     getValue : function(){
         var v = parseFloat(this.et.text);
         return isNaN(v) ? 0 : v;
+    },
+    bindOnChangeHandler : function(previewChk){
+        this.et.onChange = function(){
+            previewChk.value = false;
+        }
     }
 }
 // -----------------------------------------------
-function addOkCancelButtons(win, func){
-    var gr = win.add("group");
-    var btn_ok = gr.add("button", undefined, "OK");
-    var btn_cancel = gr.add("button", undefined, "Cancel");
-    btn_ok.onClick = function(){
-        if( func() ) win.close();
-    };
-}
-// -----------------------------------------------
-function createGrass(paths, ets){
+function createGrass(paths, conf){
     const HPI = Math.PI / 2;
     const XPI = Math.PI * 1.5; // rotate range of the heads
 
     // get the values from dialog
-    var width       =  ets.et_width.getValue() / 2.0;
-    var height_orig = ets.et_height.getValue();
-    var hfluc        = ets.et_hfluc.getValue() / 100.0;
-    var hrot        = ets.et_hrot.getValue() / 100.0 * height_orig;
-    var bfluc        = ets.et_bfluc.getValue();
-    var hrate_orig  = ets.et_hrate.getValue() / 100.0;
-    
+    var width       = conf.width;
+    var hfluc       = conf.hfluc;
+    var hrot        = conf.hrot;
+    var bfluc       = conf.bfluc;
+    var height_orig = conf.height;
+    var hrate_orig  = conf.hrate;
+
     if(height_orig < 0) hrate_orig *= -1;
     
     try{
@@ -109,6 +207,11 @@ function createGrass(paths, ets){
                     hrate *= -1;
                 }
             }
+            if(conf.invert){
+                height *= -1;
+                hrate *= -1;
+            }
+            
             var len, v, pnt;
             for(var j=0; j < pnts.length - 1; j+=2){
                 var k = j + 1;
@@ -389,5 +492,29 @@ function extractPaths(items, pp_length_limit, paths){
       extractPaths( items[i].pathItems, pp_length_limit , paths );
     }
   }
+}
+// -----------------------------------------------
+function getSelectedSpec( paths ){
+    var specs = [];
+    var j, pp, spec;
+    for( var i = 0; i < paths.length; i++ ){
+        pp = paths[i].pathPoints;
+        spec = [];
+        for( j = 0; j < pp.length; j++ ){
+            spec.push( pp[j].selected );
+        }
+        specs.push( spec );
+    }
+    return specs;
+}
+// -----------------------------------------------
+function applySelectedSpec( paths, specs ){
+    var j, pp;
+    for( var i = 0; i < paths.length; i++ ){
+        pp = paths[i].pathPoints;
+        for( j = 0; j < pp.length; j++ ){
+            pp[j].selected = specs[i][j];
+        }
+    }
 }
 main();

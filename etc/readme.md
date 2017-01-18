@@ -25,7 +25,8 @@ See the description image for the optional values.
 
 **Notice:**
 
-Smaller width value causes longer calculation time.
+Smaller width value causes longer calculation time.  
+Because of this issue, preview checkbox is forced unchecked when any value in the dialog is changed. Please check it manually again to draw a preview.
 
 inscribedCircle.jsx
 ======================

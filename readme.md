@@ -25,6 +25,14 @@ This script is for editing contents of text frames all together.
 
   - The order of the texts in the dialog depends on a rectangle area surrounding each top-left corner of the selected textframes.  If the width of the area is greater than the height of it, the order is from left to right. Otherwise from top to bottom.
 
+**HTML5 Extension version**
+[@dumbm1](https://github.com/dumbm1)
+created an HTML extension out of this script.
+The function is basically the same, but since it is based on HTML, it has flexibility in font, color and other properties of the dialog.  
+His BitBucket repository of this extension is
+[HERE](https://bitbucket.org/dumbm1/batch_text_edit)
+.
+
 breakDashes.jsx
 ======================
 This script breaks each dashed line in the selection into its components.  

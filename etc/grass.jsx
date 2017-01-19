@@ -13,6 +13,7 @@
 // 2013-01-26
 // 2016-11-26 modify not to activate textedit (fix a problem which forces an extra click after closing the dialog)
 // 2017-01-18 add an "invert" checkbox and a preview button
+// 2017-01-19 add upper limit of anchor points to avoid errors
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
@@ -36,7 +37,7 @@ function main(){
     var paths = [];
     getPathItemsInSelection( 1, paths );
     if( paths.length < 1 ){
-        alert(SCRIPTNAME + ": select path(s) before run this script");
+        alert(SCRIPTNAME + ":\rSelect path(s) before run this script");
         return;
     }
 
@@ -61,10 +62,11 @@ function main(){
     var drawPreview = function(){
         var ok = getValues();
         if(ok){
+            var is_processed = false;
             try{
-                createGrass(paths, conf);
+                is_processed = createGrass(paths, conf);
             } finally {
-                previewed = true;
+                if(is_processed) previewed = true;
             }
         }
     }
@@ -106,7 +108,7 @@ function main(){
         conf.invert = invertChk.value;
 
         if(conf.width <= 0 ){
-            alert("ERROR: The value for the width is invalid");
+            alert("ERROR:\rThe value for the width is invalid");
             return false;
         }
         
@@ -186,6 +188,9 @@ function createGrass(paths, conf){
     const HPI = Math.PI / 2;
     const XPI = Math.PI * 1.5; // rotate range of the heads
 
+    var is_processed = false;
+    var is_too_many_points = false;
+
     // get the values from dialog
     var width       = conf.width;
     var hfluc       = conf.hfluc;
@@ -196,60 +201,69 @@ function createGrass(paths, conf){
 
     if(height_orig < 0) hrate_orig *= -1;
     
-    try{
-        // process each path
-        for(var i=0; i < paths.length; i++){
-            var path = paths[i];
-            if( path.pathPoints.length < 2 ) continue;
-            
-            // add anchor points on the path
-            var pnts = brokenCurve( path, width );
-            
-            var height = height_orig;
-            var hrate   = hrate_orig;
-            
-            // determine grow toward inside or outside
-            var rad;
-            if( pnts.length > 2 ){
-                rad = pnts[0].subp(pnts[2]).getAngle();
-                if(pnts[1].subp(pnts[2]).rotate(-rad).getAngle() < 0){
-                    height *= -1;
-                    hrate *= -1;
-                }
-            }
-            if(conf.invert){
+    // process each path
+    for(var i=0; i < paths.length; i++){
+        var path = paths[i];
+        if( path.pathPoints.length < 2 ) continue;
+        
+        // add anchor points on the path
+        var pnts = brokenCurve( path, width );
+        if(pnts == null){
+            // ignores this path because it needs too many anchors to draw
+            is_too_many_points = true;
+            continue;
+        }
+
+        is_processed = true;
+        
+        var height = height_orig;
+        var hrate   = hrate_orig;
+        
+        // determine grow toward inside or outside
+        var rad;
+        if( pnts.length > 2 ){
+            rad = pnts[0].subp(pnts[2]).getAngle();
+            if(pnts[1].subp(pnts[2]).rotate(-rad).getAngle() < 0){
                 height *= -1;
                 hrate *= -1;
             }
-            
-            var len, v, pnt;
-            for(var j=0; j < pnts.length - 1; j+=2){
-                var k = j + 1;
-                
-                // define base vector
-                v = pnts[k].subp(pnts[j]).normalize();
-                v = v.rotate(-HPI);
-                
-                // head
-                len = height * (1 + Math.random() * hfluc ); // define length
-                pnt = pnts[k].addp(v.mul(len)); // move to the head
-                pnt = pnt.addp(v.mul( hrot ).rotate( xrand(XPI) )); // rotate head
-                fixPathPoint(path.pathPoints[k], pnt);
-                
-                // base and handle
-                pnt = pnts[j].addp(v.mul( xrand(bfluc) )); // apply base fluctuation
-                path.pathPoints[j].anchor = pnt.toArray();
-                
-                v = v.mul(len * hrate); // define handle vector
-                rad = Math.atan2(width, len); // define handle angle
-                
-                path.pathPoints[j].leftDirection = pnt.addp(v.rotate(-rad)).toArray();
-                path.pathPoints[j].rightDirection = pnt.addp(v.rotate(rad)).toArray();
-            }
         }
-    } catch(e){
-        alert(e);
+        if(conf.invert){
+            height *= -1;
+            hrate *= -1;
+        }
+        
+        var len, v, pnt;
+        for(var j=0; j < pnts.length - 1; j+=2){
+            var k = j + 1;
+            
+            // define base vector
+            v = pnts[k].subp(pnts[j]).normalize();
+            v = v.rotate(-HPI);
+            
+            // head
+            len = height * (1 + Math.random() * hfluc ); // define length
+            pnt = pnts[k].addp(v.mul(len)); // move to the head
+            pnt = pnt.addp(v.mul( hrot ).rotate( xrand(XPI) )); // rotate head
+            fixPathPoint(path.pathPoints[k], pnt);
+            
+            // base and handle
+            pnt = pnts[j].addp(v.mul( xrand(bfluc) )); // apply base fluctuation
+            path.pathPoints[j].anchor = pnt.toArray();
+            
+            v = v.mul(len * hrate); // define handle vector
+            rad = Math.atan2(width, len); // define handle angle
+            
+            path.pathPoints[j].leftDirection = pnt.addp(v.rotate(-rad)).toArray();
+            path.pathPoints[j].rightDirection = pnt.addp(v.rotate(rad)).toArray();
+        }
     }
+
+    if(is_too_many_points){
+        alert("INFO:\rSome paths were ignored because it needed too many anchor points to draw.");
+    }
+
+    return is_processed;
 }
 // -----------------------------------------------
 function fixPathPoint(p, pnt){
@@ -439,7 +453,7 @@ function brokenCurve( path, d ){ // path:PathItem, d:desired length between anch
     var p = path.pathPoints;
     var ancs = []; // anchor point
     var pnts = []; // Point
-    
+
     for(var i=0; i < p.length; i++){
         var next_idx = parseIdx(p, i + 1);
         if( next_idx < 0 ) break;
@@ -456,9 +470,19 @@ function brokenCurve( path, d ){ // path:PathItem, d:desired length between anch
         for(var j=0; j < tmp_pnts.length; j++){
             pnts.push( tmp_pnts[j] );
             ancs.push( tmp_pnts[j].toArray());
+
+            // maximum length of an array for setEntirePath() is 1000
+            if(ancs.length == 1000){
+                pnts = null;
+                break;
+            }
         }
     }
-    path.setEntirePath( ancs );
+
+    if(pnts != null){
+        path.setEntirePath( ancs );
+    }
+    
     return pnts;
 }
 // ------------------------------------------------

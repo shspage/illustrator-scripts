@@ -472,11 +472,12 @@ function brokenCurve( path, d ){ // path:PathItem, d:desired length between anch
             ancs.push( tmp_pnts[j].toArray());
 
             // maximum length of an array for setEntirePath() is 1000
-            if(ancs.length == 1000){
+            if(ancs.length > 1000){
                 pnts = null;
                 break;
             }
         }
+        if(pnts == null) break;
     }
 
     if(pnts != null){

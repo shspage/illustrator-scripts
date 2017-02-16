@@ -60,7 +60,7 @@ But, choosing a specific anchor is a tedious task, isn't it? So I have implement
 ![desc_flapclose_2](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flapclose_2.png)
 
 **SETTINGS**  
-If "close_path" is set to **true** in the following config section, the path whose end point is matched is turned into a closed path.
+If "close_path" is set to **true** in the config section at the beginning of the script, the path whose end point is matched is turned into a closed path.
 
 **NOTE**  
 Paths with less than four anchors in the selection are ignored.

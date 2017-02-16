@@ -46,6 +46,26 @@ To make the corners and the ends neat, this script adjusts interval of dashes wi
 
 ![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakdashes1.png)
 
+
+flapClose.jsx
+======================
+![desc_flapclose_1](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flapclose_1.png)
+
+For the selected open paths, this script rotates the part from the first selected anchor to the start point and the part from the last selected anchor to the end point so that the start point and the end point to be matched.
+
+The shape of the part to be rotated does not change.
+For this reason, if end points can not be matched even if rotated, a message will be displayed and processing will not be executed.
+
+But, choosing a specific anchor is a tedious task, isn't it? So I have implemented a special behavior. When the anchor of the start point is selected, it is assumed that the second anchor from the start point is selected.  The same is true if the end point is selected.  
+![desc_flapclose_2](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flapclose_2.png)
+
+**SETTINGS**  
+If "close_path" is set to **true** in the following config section, the path whose end point is matched is turned into a closed path.
+
+**NOTE**  
+Paths with less than four anchors in the selection are ignored.
+
+
 handleGlue.jsx
 ======================
 ![desc_handleglue1](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_handleglue1a.png)  

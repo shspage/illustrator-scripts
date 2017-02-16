@@ -60,6 +60,15 @@ Draw a circle with the ellipse tool, select it, run this script, input the numbe
 
 Please notice the case 3 of the above image. This is a feature for now.
 
+resizeToLength.jsx
+======================
+Resizes the objects in the selection at a magnification that makes the foremost path the specified length.  
+(The same magnification is applied to paths other than the front.)  
+![desc_resizetolength](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_resizetolength.png)
+
+For setting about resizing, please change the value of scaleOpt below.  
+Note that **the width of the lines is not changed by default**. (changeLineWIdths)
+
 smoothing.jsx (Catmull-Rom spline)
 ======================
 This script applys smoothing to selected pathPoints on selected polygon paths using the Catmull-Rom spline.  

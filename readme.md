@@ -47,23 +47,41 @@ To make the corners and the ends neat, this script adjusts interval of dashes wi
 ![desc_breakDashes](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_breakdashes1.png)
 
 
-flapClose.jsx
+flatten.jsx
 ======================
-![desc_flapclose_1](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flapclose_1.png)
+converts curved lines into polygonal lines. (formerly named "brokenCurve.jsx")
 
-For the selected open paths, this script rotates the part from the first selected anchor to the start point and the part from the last selected anchor to the end point so that the start point and the end point to be matched.
+![desc_brokencurve](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flatten_1.png)  
 
-The shape of the part to be rotated does not change.
-For this reason, if end points can not be matched even if rotated, a message will be displayed and processing will not be executed.
+Basically, whether it adds a point on a curve or not is determined by the distance from a point on the curve to the line between the anchor points. ( **fig.a** )  
+"**max error**" in the dialog means this distance.  
+![desc_brokencurve_a](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_brokencurve_a.png)  
 
-But, choosing a specific anchor is a tedious task, isn't it? So I have implemented a special behavior. When the anchor of the start point is selected, it is assumed that the second anchor from the start point is selected.  The same is true if the end point is selected.  
-![desc_flapclose_2](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flapclose_2.png)
+You can specify the method to do it by selecting the radio button.
+* **mid_t** :
+If the distance between the midpoint P on the curve between 
+the anchors according to the Bezier curve's parameter (t = 0.5)
+and the straight line connecting the anchors is more than
+the specified value, the point P is added and the curve is divided.
+Then these two curved lines are verified again.
+* **divide_t** : (default)
+It divides the curve between the anchors equally by parameters
+(starting from 2 divisions) and verifies the error for each
+of the divided curves using the midpoint that based on the parameter
+of the Bezier curve. If there is a curve whose error is larger
+than the specified value, it increases the number of divisions
+by one and verifies again.
+* **tangent** :
+If the distance between the straight line connecting the anchors
+and the point P which is the farthest point among the points
+where the straight line with the same slope is in contact
+with the curve between the anchors is more than the specified
+value, add the point P and divide the curve . Then these two
+curved lines are verified again.
 
-**SETTINGS**  
-If "close_path" is set to **true** in the config section at the beginning of the script, the path whose end point is matched is turned into a closed path.
+The red point in **fig.b** is by "tangent", and blue one is by "mid_t".  
 
-**NOTE**  
-Paths with less than four anchors in the selection are ignored.
+if "**output to file**" is checked, saves the coordinates data of flattened paths to a file **without** doing actual flattening.
 
 
 handleGlue.jsx

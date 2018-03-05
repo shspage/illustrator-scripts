@@ -34,9 +34,10 @@
 // value, add the point P and divide the curve . Then these two
 // curved lines are verified again.
 
-// ver.1.1.0
+// ver.1.1.1
 // test env: Adobe Illustrator CC2018 (Windows)
 // 2018-03-02: added method "divide_t". added UI. rename script itself
+// 2018-03-05: fix min divide count of divide_t
 
 // Copyright(c) 2018 Hiroyuki Sato
 // https://github.com/shspage
@@ -321,7 +322,7 @@ Curve.prototype = {
         var ts = [0, 1];
 
         if( ! this.hasNoHandle() ){
-            var n = 2;
+            var n = 1;
             var err = true;
 
             while(err){

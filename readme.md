@@ -49,40 +49,29 @@ To make the corners and the ends neat, this script adjusts interval of dashes wi
 
 flatten.jsx
 ======================
-converts curved lines into polygonal lines. (formerly named "brokenCurve.jsx")
+converts curved lines into polygonal lines. <!-- (formerly named "brokenCurve.jsx") -->
 
-![desc_brokencurve](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flatten_1.png)  
+![desc_flatten_3](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flatten_3.png)  
+
+![desc_flatten_1](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_flatten_2.png)  
 
 Basically, whether it adds a point on a curve or not is determined by the distance from a point on the curve to the line between the anchor points. ( **fig.a** )  
 "**max error**" in the dialog means this distance.  
-![desc_brokencurve_a](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_brokencurve_a.png)  
+![desc_flatten_2](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_brokencurve_a.png)  
 
 You can specify the method to do it by selecting the radio button.
 * **mid_t** :
-If the distance between the midpoint P on the curve between 
-the anchors according to the Bezier curve's parameter (t = 0.5)
-and the straight line connecting the anchors is more than
-the specified value, the point P is added and the curve is divided.
-Then these two curved lines are verified again.
+If the distance between the midpoint P of a Bezier curve (according to Bezier curve's parameter (t = 0.5)) and a straight line connecting its two anchors is greater than specified value, the point P is added on the curve to divide it. Then these two curves are verified again.
 * **divide_t** : (default)
-It divides the curve between the anchors equally by parameters
-(starting from 2 divisions) and verifies the error for each
-of the divided curves using the midpoint that based on the parameter
-of the Bezier curve. If there is a curve whose error is larger
-than the specified value, it increases the number of divisions
-by one and verifies again.
+It divides the curve between the anchors equally by parameters and verifies the error for each of the divided curves using the midpoint that based on the parameter of the Bezier curve. If there is a curve whose error is larger than the specified value, it increases the number of divisions by one and verifies again.
 * **tangent** :
-If the distance between the straight line connecting the anchors
-and the point P which is the farthest point among the points
-where the straight line with the same slope is in contact
-with the curve between the anchors is more than the specified
-value, add the point P and divide the curve . Then these two
-curved lines are verified again.
+If the distance between the straight line connecting the anchors and the point P which is the farthest point among the points where the straight line with the same slope is in contact with the curve between the anchors is more than the specified value, the point P  is added on the curve to divide it. Then these two curves are verified again.
 
 The red point in **fig.b** is by "tangent", and blue one is by "mid_t".  
 
-if "**output to file**" is checked, saves the coordinates data of flattened paths to a file **without** doing actual flattening.
+If "**max distance between 2 points**" is greater than 0, anchor points are generated on each segment including straight line according to this setting.  Set 0 to ignore this setting.
 
+If "**output to file**" is checked, saves the coordinates data of flattened paths to a file **without** doing actual flattening.
 
 handleGlue.jsx
 ======================

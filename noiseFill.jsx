@@ -23,6 +23,7 @@
 // Sun, 28 Dec 2014 10:10:18 +0900
 // Sat, 26 Nov 2016 19:10:05 +0900
 // -- add try...finally statement around parts changing win.enabled property.
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
 
 (function(){
     var _perlin;
@@ -247,15 +248,16 @@
     // than this number.
     var extractPaths = function(s, pp_length_limit, paths){
         for(var i = 0; i < s.length; i++){
-            if(s[i].typename == "PathItem"
-               && !s[i].guides && !s[i].clipping
-               && s[i].filled){
-                if(pp_length_limit
-                   && s[i].pathPoints.length <= pp_length_limit){
+            if(s[i].locked || s[i].hidden){
+                continue;
+            } else if(s[i].typename == "PathItem"){
+               if ((pp_length_limit && s[i].pathPoints.length <= pp_length_limit)
+                   || s[i].guides || s[i].clipping ){
                     continue;
                 }
-                paths.push(s[i]);
-                
+                if (s[i].filled){
+                    paths.push(s[i]);
+                }
             } else if(s[i].typename == "GroupItem"){
                 // search for PathItems in GroupItem, recursively
                 extractPaths(s[i].pageItems, pp_length_limit, paths);

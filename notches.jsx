@@ -13,6 +13,7 @@
 // Mon, 22 Sep 2014 23:53:27 +0900
 // Sat, 26 Nov 2016 19:13:07 +0900
 // -- modify not to activate textedit (fix a problem which forces an extra click after closing the dialog)
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
 
 function main(){
     var script_name = "Notches";
@@ -405,10 +406,11 @@ function getPathItemsInSelection(n, paths){
 // than this number.
 function extractPaths(s, pp_length_limit, paths){
   for(var i = 0; i < s.length; i++){
-    if(s[i].typename == "PathItem"
-       && !s[i].guides && !s[i].clipping){
-      if(pp_length_limit
-         && s[i].pathPoints.length <= pp_length_limit){
+    if (s[i].locked || s[i].hidden){
+        continue;
+    } else if(s[i].typename == "PathItem"){
+      if((pp_length_limit && s[i].pathPoints.length <= pp_length_limit)
+        || s[i].guides || s[i].clipping){
         continue;
       }
       paths.push(s[i]);

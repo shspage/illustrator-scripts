@@ -78,6 +78,7 @@
 // 2018-03-05: fixed min divide count of divide_t
 // 2018-07-18: added parameter "max_dist_between_points". changed radio-button order
 //             fixed each division method to add anchors only when necessary
+// 2018-07-20: modified to ignore locked/hidden objects in a selected group
 
 // Copyright(c) 2018 Hiroyuki Sato
 // https://github.com/shspage
@@ -753,12 +754,12 @@
     // than this number.
     function extractPaths(items, pp_length_limit, paths){  
         for( var i = 0; i < items.length; i++ ){
-            // ignore guides and clipping paths
-            if( items[i].typename == "PathItem"
-                && !items[i].guides
-                && !items[i].clipping ){
-                if( pp_length_limit
-                    && items[i].pathPoints.length <= pp_length_limit ){
+            if( items[i].locked || items[i].hidden ){
+                continue;
+            } else if( items[i].typename == "PathItem"){
+                // ignore guides and clipping paths
+                if ((pp_length_limit && items[i].pathPoints.length <= pp_length_limit)
+                    ||  items[i].guides || items[i].clipping ){
                     continue;
                 }
                 paths.push( items[i] );

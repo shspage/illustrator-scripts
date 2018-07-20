@@ -14,6 +14,7 @@
 // 2016-11-26 modify not to activate textedit (fix a problem which forces an extra click after closing the dialog)
 // 2017-01-18 add an "invert" checkbox and a preview button
 // 2017-01-19 add upper limit of anchor points to avoid errors
+// 2018-07-20 modified to ignore locked/hidden objects in a selected group
 
 // Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
@@ -507,12 +508,12 @@ function getPathItemsInSelection( min_pathpoint_count, paths ){
 // than this number.
 function extractPaths(items, pp_length_limit, paths){  
   for( var i = 0; i < items.length; i++ ){
-    // ignore guides and clipping paths
-    if( items[i].typename == "PathItem"
-        && !items[i].guides
-        && !items[i].clipping ){
-      if( pp_length_limit
-         && items[i].pathPoints.length <= pp_length_limit ){
+    if(items[i].locked || items[i].hidden){
+        continue;
+    } else if( items[i].typename == "PathItem"){
+      if((pp_length_limit && items[i].pathPoints.length <= pp_length_limit )
+        || items[i].guides || items[i].clipping){
+        // ignore guides and clipping paths
         continue;
       }
       paths.push( items[i] );

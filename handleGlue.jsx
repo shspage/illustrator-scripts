@@ -34,7 +34,7 @@
 // See the LICENSE file for details.
 
 // released: 2013.12.07  20:02:50 +0900
-// last update: 2016.11.30
+// last update: 2018.07.20, modified to ignore locked/hidden objects in a selected group
 
 function main(){
     // for parameter details, see the description of the script.
@@ -703,7 +703,9 @@ function getPathItemsInSelection(n, paths){
 // than this number.
 function extractPaths(s, pp_length_limit, paths){
   for(var i = 0; i < s.length; i++){
-    if(s[i].typename == "PathItem"){
+    if(s[i].locked || s[i].hidden){
+        continue;
+    } else if(s[i].typename == "PathItem"){
       if(pp_length_limit
          && s[i].pathPoints.length <= pp_length_limit){
         continue;

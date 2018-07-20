@@ -16,6 +16,7 @@
 // See the LICENSE file for details.
 
 // released: 2017.02.18
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
 
 function main(){
     // SETTINGS
@@ -58,20 +59,20 @@ function main(){
     var ratio = mm2pt(target_length) * 100 / current_length;
     var center = getCenterOfSelection(sel);
 
-    for(var i = 0; i < sel.length; i++){
-        sel[i].translate(-center[0], -center[1],
+    for(var i = 0; i < paths.length; i++){
+        paths[i].translate(-center[0], -center[1],
                          transformOpt.transformFillPatterns,
                          transformOpt.transformFillPatterns,
                          transformOpt.transformFillGradients,
                          transformOpt.transformStrokePattern);
-        sel[i].resize(ratio, ratio,
+        paths[i].resize(ratio, ratio,
                       scaleOpt.changePositions,
                       scaleOpt.changeFillPatterns,
                       scaleOpt.changeFillGradients,
                       scaleOpt.chnageStrokePattern,
                       scaleOpt.changeLineWIdths,
                       scaleOpt.scaleAbout);
-        sel[i].translate(center[0], center[1],
+        paths[i].translate(center[0], center[1],
                          transformOpt.transformFillPatterns,
                          transformOpt.transformFillPatterns,
                          transformOpt.transformFillGradients,
@@ -110,7 +111,9 @@ function extractPaths(sel, paths, min_pp_length){
     if(!min_pp_length) min_pp_length = 1;
     
     for(var i = 0; i < sel.length; i++){
-        if(sel[i].typename == "PathItem"){
+        if(sel[i].locked || sel[i].hidden){
+            continue;
+        } else if(sel[i].typename == "PathItem"){
             if(sel[i].pathPoints.length >= min_pp_length){
                 paths.push(sel[i]);
             }

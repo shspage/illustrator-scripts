@@ -9,6 +9,8 @@
 //        feature is ignored because it is totally
 //        out of control from JavaScript.
 //
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
+
 // Copyright(c) 2014 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
@@ -202,7 +204,9 @@ function getPathItemsInSelection(n, paths){
 // than this number.
 function extractPaths(s, pp_length_limit, paths){
   for(var i = 0; i < s.length; i++){
-    if(s[i].typename == "PathItem"){
+    if(s[i].locked || s[i].hidden){
+        continue;
+    } else if(s[i].typename == "PathItem"){
       if(pp_length_limit
          && s[i].pathPoints.length <= pp_length_limit){
         continue;

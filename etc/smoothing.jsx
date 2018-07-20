@@ -10,6 +10,8 @@
 //  https://pomax.github.io/bezierinfo/#catmullconv
 // )
 
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
+
 // Copyright(c) 2016 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
@@ -265,9 +267,12 @@
      */
     function extractPaths(sel, paths){
         for(var i = 0, iEnd = sel.length; i < iEnd; i++){
-            if(sel[i].typename == "PathItem"
-               && sel[i].pathPoints.length >= 2){
-                paths.push(sel[i]);
+            if(sel[i].locked || sel[i].hidden){
+                continue;
+            } else if(sel[i].typename == "PathItem"){
+               if(sel[i].pathPoints.length >= 2){
+                  paths.push(sel[i]);
+               }
                 
             } else if(sel[i].typename == "GroupItem"){
                 extractPaths(sel[i].pageItems, paths);

@@ -12,7 +12,7 @@
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Wed, 30 Jan 2013 20:07:35 +0900
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
 
 // “const” causes problems in ExtendScript Toolkit after the first run!
 /*const*/ var SCRIPTNAME = "Ovalize";
@@ -196,12 +196,13 @@ function getPathItemsInSelection( min_pathpoint_count, paths ){
 // than this number.
 function extractPaths(items, pp_length_limit, paths){  
   for( var i = 0; i < items.length; i++ ){
-    // ignore guides and clipping paths
-    if( items[i].typename == "PathItem"
-        && !items[i].guides
-        && !items[i].clipping ){
-      if( pp_length_limit
-         && items[i].pathPoints.length <= pp_length_limit ){
+    if(items[i].locked || items[i].hidden){
+      continue;
+      
+    } else if( items[i].typename == "PathItem"){
+      if((pp_length_limit && items[i].pathPoints.length <= pp_length_limit )
+        || items[i].guides || items[i].clipping){
+        // ignore guides and clipping paths
         continue;
       }
       paths.push( items[i] );

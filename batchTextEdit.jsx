@@ -24,7 +24,9 @@
 
 // test env: Adobe Illustrator CS3, CS6 (Windows)
 
-// Copyright(c) 2013-2014 Hiroyuki Sato
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
+
+// Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
@@ -171,7 +173,9 @@ function getVTextFramesRect( tfs, rect ){
 function extractTextFramesAsVTextFrameItem(s, r){
 	// s is an array of pageitems ( ex. selection )
 	for( var i=0; i < s.length; i++ ){
-		if( s[i].typename == "TextFrame" ){
+		if( s[i].locked || s[i].hidden){
+			continue;
+		} else if( s[i].typename == "TextFrame" ){
 			r.push( new vTextFrameItem(s[i]) );
 		} else if( s[i].typename == "GroupItem" ){
 			extractTextFramesAsVTextFrameItem(s[i].pageItems, r);

@@ -15,7 +15,7 @@
 
 // test env: Adobe Illustrator CC (Win/Mac)
 
-// Copyright(c) 2013-2015 Hiroyuki Sato
+// Copyright(c) 2013 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
@@ -23,6 +23,7 @@
 // Tue, 07 Jul 2015 20:17:27 +0900
 // Sat, 26 Nov 2016 19:15:51 +0900
 // -- add try...finally statement around parts changing win.enabled property.
+// 2018.07.20, modified to ignore locked/hidden objects in a selected group
 
 main();
 function main(){
@@ -405,10 +406,11 @@ function equation2_custom(a,b,c) {
 // than this number.
 function extractPaths(s, pp_length_limit, paths){
   for(var i = 0; i < s.length; i++){
-    if(s[i].typename == "PathItem"
-       && !s[i].guides && !s[i].clipping){
-      if(pp_length_limit
-         && s[i].pathPoints.length <= pp_length_limit){
+    if(s[i].locked || s[i].hidden){
+        continue;
+    } else if(s[i].typename == "PathItem"){
+      if((pp_length_limit && s[i].pathPoints.length <= pp_length_limit)
+        || s[i].guides || s[i].clipping){
         continue;
       }
       paths.push(s[i]);

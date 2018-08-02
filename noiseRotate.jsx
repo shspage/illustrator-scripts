@@ -7,7 +7,7 @@
 
 // ----
 // noiseRotate
-// changes the rotation of the selected items using Symplex noise.
+// changes the rotation of the selected items using Simplex noise.
 
 // USAGE: Select items and run this script.
 // NOTE: compound paths are not released

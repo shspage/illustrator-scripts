@@ -7,7 +7,7 @@
 
 // ----
 // noiseFill
-// changes the colors of the selected paths using Symplex noise.
+// changes the colors of the selected paths using Simplex noise.
 
 // USAGE: Select filled paths and run this script.
 // NOTE: The objects other than filled paths in the selection are ignored.

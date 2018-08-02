@@ -108,7 +108,7 @@ on the path that the selected anchor moved to.
 
 noiseFill.jsx
 ======================
-This script changes the colors of the selected paths using Perlin (Symplex) noise.  
+This script changes the colors of the selected paths using Perlin (Simplex) noise.  
 ![desc_noiseFill](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_noisefill2.png)
 
 Usage: Select filled paths and run this script.  
@@ -131,12 +131,12 @@ If you use the older version of Illustrator, you may need to modify this line.  
 
 noiseRotate.jsx
 ======================
-This script changes the angle of the selected page items using Perlin (Symplex) noise.  
+This script changes the angle of the selected page items using Perlin (Simplex) noise.  
 The same include script as above required.  
 
 noiseScale.jsx
 ======================
-This script changes the size of the selected page items using Perlin (Symplex) noise.  
+This script changes the size of the selected page items using Perlin (Simplex) noise.  
 The same include script as above required.  
 ![desc_noiseScale](https://github.com/shspage/illustrator-scripts/raw/master/image/desc_noiseScale.png)
 

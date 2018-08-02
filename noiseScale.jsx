@@ -6,45 +6,48 @@
 // placed under "lib" folder under "Scripts" folder of Adobe Illlustrator.
 
 // ----
-// noiseFill
-// changes the colors of the selected paths using Symplex noise.
+// noiseScale
+// changes the size of the selected items using Symplex noise.
 
-// USAGE: Select filled paths and run this script.
-// NOTE: The objects other than filled paths in the selection are ignored.
+// USAGE: Select items and run this script.
+// NOTE: compound paths are not released
 
 // JavaScript Script for Adobe Illustrator
-// Tested with Adobe Illustrator CC2014, Windows 7 (Japanese version).
+// Tested with Adobe Illustrator CC2018, Windows 10 (Japanese version).
 
-// Copyright(c) 2014 Hiroyuki Sato
+// Copyright(c) 2018 Hiroyuki Sato
 // https://github.com/shspage
 // This script is distributed under the MIT License.
 // See the LICENSE file for details.
 
-// Sun, 28 Dec 2014 10:10:18 +0900
-// Sat, 26 Nov 2016 19:10:05 +0900
-// -- add try...finally statement around parts changing win.enabled property.
-// 2018.07.20, modified to ignore locked/hidden objects in a selected group
-// 2018.08.02, added comment. modified variable name
-
 (function(){
     var _perlin;
     var _n;
-    var _grayRangeHalf;
+    var _rangeHalf;
     var _opts = {};
-    var _paths = [];
+    var _items = [];
     var _rect;
     var _fullLength;
+
+    // resize options (by my preference)
+    // Note that "changeLineWidth" is "false"
+    var _scaleOpt = {
+        changePositions:true,
+        changeFillPatterns:true,
+        changeFillGradients:true,
+        changeStrokePattern:true,
+        changeLineWidth:false,
+        scaleAbout:Transformation.CENTER
+    };
     
     var main = function(){
-        var script_name = "noiseFill";
+        var script_name = "noiseScale";
     
         if(documents.length < 1) return;
 
-        getPathItemsInSelection(1, _paths);
-        if(_paths.length < 1) return;
-        
-        _rect = getSelectedRect(_paths);
-        _fullLength = Math.max(_rect.width, _rect.height);
+        if(activeDocument.selection.length < 1){
+            return;
+        }
         
         // dialog
         var previewed = false;
@@ -65,7 +68,7 @@
             var ok = getValues();
             if(ok){
                 try{
-                    noiseFillMain();
+                    noiseMain();
                 } finally {
                     previewed = true;
                 }
@@ -76,13 +79,16 @@
         win.alignChildren = "right";
 
         // default values ---- edit as you prefer
-        var et_gray_max = addEditText(win, "gray max:", "95");
-        var et_gray_min = addEditText(win, "gray min:", "5");
+        var et_range_max = addEditText(win, "scale max(%):", "100");
+        var et_range_min = addEditText(win, "scale min(%):", "25");
         var et_noise_factor = addEditText(win,  "noise factor", "3");
         
         var chkGrp = win.add("group");
         chkGrp.alignment = "center";
         var previewChk = chkGrp.add("checkbox", undefined, "preview");
+
+        var extractGroupChk = chkGrp.add("checkbox", undefined, "extract group");
+        extractGroupChk.value = true;
     
         // buttons
         var btnGrp = win.add("group");
@@ -90,8 +96,8 @@
         var btn_cancel = btnGrp.add("button", undefined, "Cancel");
     
         var getValues = function(){
-            _opts.gray_max = parseFloat(et_gray_max.text);
-            _opts.gray_min = parseFloat(et_gray_min.text);
+            _opts.range_max = parseFloat(et_range_max.text);
+            _opts.range_min = parseFloat(et_range_min.text);
             _opts.noise_factor =  parseFloat(et_noise_factor.text);
         
             var ok = verifyOptsValues( _opts );
@@ -99,6 +105,21 @@
         }
         
         var processPreview = function( is_preview ){
+            _items = [];
+            if(extractGroupChk.value){
+                extractPageItems(activeDocument.selection, _items);
+            } else {
+                _items = activeDocument.selection;
+            }
+            
+            if(_items.length < 1){
+                alert("ABORT:\rnothing selected");
+                return;
+            }
+            
+            _rect = getSelectedRect(_items);
+            _fullLength = Math.max(_rect.width, _rect.height);
+            
             if( ! is_preview || previewChk.value){
                 try{
                     win.enabled = false;
@@ -147,10 +168,10 @@
     var verifyOptsValues = function(_opts){
         var ok = true;
         var errmsg = "";
-        if(isNaN(_opts.gray_max)){
-            errmsg = "gray max value is invalid";
-        } else if( isNaN(_opts.gray_min)){
-            errmsg = "gray min value is invalid";
+        if(isNaN(_opts.range_max) || _opts.range_max <= 0){
+            errmsg = "max value is invalid";
+        } else if( isNaN(_opts.range_min) || _opts.range_min <= 0){
+            errmsg = "min value is invalid";
         } else if( isNaN(_opts.noise_factor) || _opts.noise_factor < 0){
             errmsg = "noise factor value is invalid";
         }
@@ -158,11 +179,6 @@
         if(errmsg != ""){
             alert(errmsg);
             ok = false;
-        } else {
-            if(_opts.gray_max > 100) _opts.gray_max = 100;
-            if(_opts.gray_max < 0) _opts.gray_max = 0;
-            if(_opts.gray_min > 100) _opts.gray_min = 100;
-            if(_opts.gray_min < 0) _opts.gray_min = 0;
         }
         return ok;
     };
@@ -176,15 +192,21 @@
         return et;
     };
     // -----------------------------------------------
-    var noiseFillMain = function(){
+    var noiseMain = function(){
         _perlin = new SimplexNoise();
         _n = Math.random() * 10;
-        _grayRangeHalf = (_opts.gray_max - _opts.gray_min) / 2;
+        _rangeHalf = (_opts.range_max - _opts.range_min) / 2;
         
-        for(var i = 0; i < _paths.length; i++){
-            col = new GrayColor();
-            col.gray = getGrayValue(_paths[i]);
-            _paths[i].fillColor = col;
+        for(var i = 0; i < _items.length; i++){
+            var v = getNoiseValue(_items[i]);
+            _items[i].resize(v, v,
+                             _scaleOpt.changePositions,
+                             _scaleOpt.changeFillPatterns,
+                             _scaleOpt.changeFillGradients,
+                             _scaleOpt.changeStrokePattern,
+                             _scaleOpt.changeLineWidth,
+                             _scaleOpt.scaleAbout
+                             );
         }
     };
     // -----------------------------------------------
@@ -202,14 +224,14 @@
         this.height = t - b;
     };
     // -----------------------------------------------
-    // generates gray value according to the coordinate of "item".
+    // generates noise value according to the coordinate of "item".
     // returns "noiseValue": (_opts.range_min <= noiseValue <= _opts.range.max)
-    var getGrayValue = function(item){  // item : PageItem
+    var getNoiseValue = function(item){  // item : PageItem
         var center = getCenter(item);
         var kx = (center.x - _rect.left) / _fullLength * _opts.noise_factor;
         var ky = (center.y - _rect.bottom) / _fullLength * _opts.noise_factor;
         var noiseValue = _perlin.noise(_n + kx, _n + ky) + 1;  // 0 < . < 2
-        return noiseValue * _grayRangeHalf + _opts.gray_min;
+        return noiseValue * _rangeHalf + _opts.range_min;
     };
     // -----------------------------------------------
     var getCenter = function(item){
@@ -233,42 +255,12 @@
         return new Rect(left, right, top, bottom);
     };
     // -----------------------------------------------
-    // extract PathItems from the selection which length of PathPoints
-    // is greater than "n"
-    var getPathItemsInSelection = function(n, paths){
-        if(documents.length < 1) return;
-        
-        var s = activeDocument.selection;
-        
-        if (!(s instanceof Array) || s.length < 1) return;
-        
-        extractPaths(s, n, paths);
-    };
-    // -----------------------------------------------
-    // extract PathItems from "s" (Array of PageItems -- ex. selection),
-    // and put them into an Array "paths".  If "pp_length_limit" is specified,
-    // this function extracts PathItems which PathPoints length is greater
-    // than this number.
-    var extractPaths = function(s, pp_length_limit, paths){
+    var extractPageItems = function(s, items){
         for(var i = 0; i < s.length; i++){
-            if(s[i].locked || s[i].hidden){
-                continue;
-            } else if(s[i].typename == "PathItem"){
-               if ((pp_length_limit && s[i].pathPoints.length <= pp_length_limit)
-                   || s[i].guides || s[i].clipping ){
-                    continue;
-                }
-                if (s[i].filled){
-                    paths.push(s[i]);
-                }
-            } else if(s[i].typename == "GroupItem"){
-                // search for PathItems in GroupItem, recursively
-                extractPaths(s[i].pageItems, pp_length_limit, paths);
-                
-            } else if(s[i].typename == "CompoundPathItem"){
-                // searches for pathitems in CompoundPathItem, recursively
-                // ( ### Grouped PathItems in CompoundPathItem are ignored ### )
-                extractPaths(s[i].pathItems, pp_length_limit , paths);
+            if(s[i].typename == "GroupItem"){
+                extractPageItems(s[i].pageItems, items);
+            } else {
+                items.push(s[i]);
             }
         }
     };
